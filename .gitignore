@@ -1,0 +1,38 @@
+# Python
+venv/
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+.Python
+env/
+.env
+.venv
+
+# JavaScript
+node_modules/
+admin-ui/node_modules/
+admin-ui/dist/
+
+# Data files
+data/*.csv
+data/*.json
+*.db
+*.db-shm
+*.db-wal
+*.sqlite
+
+# Logs
+*.log
+logs/
+artifacts/
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# OS
+.DS_Store
+Thumbs.db

@@ -1,0 +1,56 @@
+[project]
+name = "smart-hostel-grievance"
+version = "1.0.0"
+description = "Production-ready hostel grievance analyzer with AI-assisted issue aggregation."
+requires-python = ">=3.10"
+dependencies = [
+    "alembic>=1.13.2",
+    "email-validator>=2.2.0",
+    "fastapi>=0.115.0",
+    "httpx>=0.27.0",
+    "bcrypt>=4.2.0,<5.0.0",
+    "pgvector>=0.3.3",
+    "psycopg[binary]>=3.2.1",
+    "pydantic-settings>=2.4.0",
+    "pyjwt>=2.9.0",
+    "python-dotenv>=1.0.1",
+    "sqlalchemy>=2.0.32",
+    "uvicorn[standard]>=0.30.6",
+]
+
+[project.optional-dependencies]
+ai = [
+    "sentence-transformers>=3.0.1",
+]
+dev = [
+    "coverage>=7.6.1",
+    "pytest>=8.3.2",
+    "pytest-asyncio>=0.24.0",
+    "ruff>=0.6.3",
+]
+
+[tool.ruff]
+line-length = 100
+target-version = "py310"
+extend-exclude = [
+    "admin-ui/node_modules",
+    "admin-ui/dist",
+    "data",
+]
+
+[tool.ruff.lint]
+select = ["E", "F", "I", "B", "UP", "SIM"]
+ignore = ["B008"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+pythonpath = ["."]
+addopts = "-q"
+
+[tool.coverage.run]
+source = ["app"]
+omit = [
+    "app/classification/*",
+    "app/issues/*",
+    "app/services/issue_service_day*.py",
+]

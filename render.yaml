@@ -1,0 +1,28 @@
+services:
+  - type: web
+    name: smart-hostel-grievance
+    runtime: docker
+    plan: free
+    dockerfilePath: ./Dockerfile.render
+    healthCheckPath: /api/v1/health
+    envVars:
+      - key: ENVIRONMENT
+        value: production
+      - key: API_PREFIX
+        value: /api/v1
+      - key: AUTO_CREATE_TABLES
+        value: false
+      - key: ENABLE_TRANSFORMER_EMBEDDINGS
+        value: false
+      - key: SECURE_COOKIES
+        value: true
+      - key: CORS_ORIGINS
+        value: '[]'
+      - key: OAUTH_ENABLED
+        value: false
+      - key: ACCESS_TOKEN_MINUTES
+        value: 480
+      - key: DATABASE_URL
+        sync: false
+      - key: SECRET_KEY
+        generateValue: true
