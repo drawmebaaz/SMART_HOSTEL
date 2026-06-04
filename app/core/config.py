@@ -1,8 +1,18 @@
 from functools import lru_cache
+import json
+from typing import Any
 from typing import Literal
 
 from pydantic import AnyHttpUrl, Field, field_validator
-from pydantic_settings import BaseSettings, SettingsConfigDict
+from pydantic.fields import FieldInfo
+from pydantic_settings import BaseSettings, EnvSettingsSource, PydanticBaseSettingsSource, SettingsConfigDict
+
+
+class CorsFriendlyEnvSettingsSource(EnvSettingsSource):
+    def prepare_field_value(self, field_name: str, field: FieldInfo, value: Any, value_is_complex: bool) -> Any:
+        if field_name == "cors_origins":
+            return value
+        return super().prepare_field_value(field_name, field, value, value_is_complex)
 
 
 class Settings(BaseSettings):
@@ -45,8 +55,31 @@ class Settings(BaseSettings):
     @classmethod
     def parse_cors_origins(cls, value: str | list[str]) -> list[str]:
         if isinstance(value, str):
-            return [item.strip() for item in value.split(",") if item.strip()]
+            try:
+                parsed = json.loads(value)
+            except json.JSONDecodeError:
+                return [item.strip() for item in value.split(",") if item.strip()]
+            if isinstance(parsed, list):
+                return [str(item).strip() for item in parsed if str(item).strip()]
+            parsed_value = str(parsed).strip()
+            return [parsed_value] if parsed_value else []
         return value
+
+    @classmethod
+    def settings_customise_sources(
+        cls,
+        settings_cls: type[BaseSettings],
+        init_settings: PydanticBaseSettingsSource,
+        env_settings: PydanticBaseSettingsSource,
+        dotenv_settings: PydanticBaseSettingsSource,
+        file_secret_settings: PydanticBaseSettingsSource,
+    ) -> tuple[PydanticBaseSettingsSource, ...]:
+        return (
+            init_settings,
+            CorsFriendlyEnvSettingsSource(settings_cls),
+            dotenv_settings,
+            file_secret_settings,
+        )
 
     @field_validator("secret_key")
     @classmethod

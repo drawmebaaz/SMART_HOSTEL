@@ -18,7 +18,7 @@ export function ProtectedRoute({
         <div className="loader-card" aria-live="polite">
           <span className="loader-bar" />
           <strong>Loading workspace</strong>
-          <small>Establishing secure command session...</small>
+          <small>Checking account access...</small>
         </div>
       </div>
     )

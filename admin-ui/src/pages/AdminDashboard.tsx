@@ -4,16 +4,14 @@ import { Link } from 'react-router-dom'
 import {
   Activity,
   AlertTriangle,
-  BrainCircuit,
   Building2,
   Clock3,
-  Flame,
+  ClipboardList,
   Gauge,
+  Layers3,
   MapPin,
-  RadioTower,
   RefreshCw,
   ShieldAlert,
-  Sparkles,
   Users,
 } from 'lucide-react'
 
@@ -68,9 +66,9 @@ export default function AdminDashboard() {
       ? Math.round((groupedCount / dashboard.complaints_total) * 100)
       : 0
   const commandMode = dashboard?.critical_issues
-    ? 'Escalation watch'
+    ? 'Escalation review'
     : dashboard && dashboard.total_open > 0
-      ? 'Active monitoring'
+      ? 'Active queue'
       : 'Queue clear'
 
   return (
@@ -80,16 +78,16 @@ export default function AdminDashboard() {
           <div className="command-copy">
             <div className="command-kicker">
               <span className="live-dot" aria-hidden="true" />
-              <p className="eyebrow">Operations command</p>
+              <p className="eyebrow">Hostel operations</p>
             </div>
-            <h1>Hostel operations command</h1>
+            <h1>Incident desk for hostel infrastructure</h1>
             <p className="muted hero-copy">
-              A focused resolution workspace for student complaints, duplicate clusters, SLA pressure, and admin action.
+              A practical workspace for grouped complaints, SLA pressure, hostel-level risk, evidence review, and administrator action.
             </p>
             <div className="hero-signal-row" aria-label="Command signals">
               <span>
                 <Building2 aria-hidden="true" />
-                Routing
+                Hostel routing
               </span>
               <span>
                 <Clock3 aria-hidden="true" />
@@ -100,8 +98,8 @@ export default function AdminDashboard() {
                 Risk scoring
               </span>
               <span>
-                <RadioTower aria-hidden="true" />
-                Live evidence
+                <ClipboardList aria-hidden="true" />
+                Complaint evidence
               </span>
             </div>
             <div className="command-telemetry" aria-label="Operations telemetry">
@@ -112,11 +110,11 @@ export default function AdminDashboard() {
             </div>
           </div>
 
-          <aside className="directive-panel" aria-label="Priority directive">
+          <aside className="directive-panel" aria-label="Priority action">
             <div className="section-heading compact">
               <div>
-                <p className="eyebrow">Priority directive</p>
-                <h2>{topIssue ? topIssue.title : 'No active directive'}</h2>
+                <p className="eyebrow">Priority action</p>
+                <h2>{topIssue ? topIssue.title : 'No active issue'}</h2>
               </div>
               {topIssue && <RiskRing value={topIssue.priority_score} />}
             </div>
@@ -130,8 +128,8 @@ export default function AdminDashboard() {
             </div>
             <div className="hero-actions">
               <span className="runtime-pill">
-                <BrainCircuit aria-hidden="true" />
-                {dashboard?.ai_runtime ?? 'Local hybrid intelligence'}
+                <Gauge aria-hidden="true" />
+                Classifier: {dashboard?.ai_runtime ?? 'Local hybrid intelligence'}
               </span>
               <button className="secondary-button" type="button" onClick={() => void load()}>
                 <RefreshCw aria-hidden="true" />
@@ -142,7 +140,7 @@ export default function AdminDashboard() {
         </section>
 
         {dashboard && (
-          <section className="signal-strip" aria-label="Live command signals">
+          <section className="signal-strip" aria-label="Operational signals">
             <SignalTile icon={<ShieldAlert />} label="Escalation" value={`${dashboard.critical_issues} critical`} tone="red" />
             <SignalTile icon={<Clock3 />} label="SLA" value={`${breachedCount} breached / ${atRiskCount} at risk`} tone="amber" />
             <SignalTile
@@ -152,7 +150,7 @@ export default function AdminDashboard() {
               tone="blue"
             />
             <SignalTile
-              icon={<BrainCircuit />}
+              icon={<ClipboardList />}
               label="Evidence density"
               value={`${dashboard.complaints_total} reports / ${dashboard.issues.length} issues`}
               tone="green"
@@ -170,7 +168,7 @@ export default function AdminDashboard() {
               <Metric icon={<ShieldAlert />} label="Critical" value={dashboard.critical_issues} tone="red" caption="Needs escalation" />
               <Metric icon={<Users />} label="Complaints" value={dashboard.complaints_total} tone="green" caption="Real student reports" />
               <Metric
-                icon={<Flame />}
+                icon={<Layers3 />}
                 label="Grouped"
                 value={groupedCount}
                 tone="amber"
@@ -229,7 +227,7 @@ export default function AdminDashboard() {
               <div className="section-heading">
                 <div>
                   <p className="eyebrow">Prioritized issue queue</p>
-                  <h2>Sorted by risk and operational pressure</h2>
+                  <h2>Grouped operational issues sorted by risk</h2>
                 </div>
                 <div className="status-tabs" role="tablist" aria-label="Filter issues by status">
                   {STATUSES.map((value) => (
@@ -250,7 +248,7 @@ export default function AdminDashboard() {
               <div className="issue-list">
                 {filteredIssues.length === 0 && (
                   <div className="empty-state">
-                    <Sparkles aria-hidden="true" />
+                    <ClipboardList aria-hidden="true" />
                     <p>No issues match this filter.</p>
                   </div>
                 )}
@@ -258,7 +256,10 @@ export default function AdminDashboard() {
                   <Link className="issue-row" key={issue.id} to={`/admin/issues/${issue.id}`}>
                     <div className="issue-main">
                       <div className="issue-title-line">
-                        <strong>{issue.title}</strong>
+                        <div>
+                          <code>ISS-{issue.id.slice(0, 8)}</code>
+                          <strong>{issue.title}</strong>
+                        </div>
                         <StatusBadge status={issue.status} />
                       </div>
                       <div className="issue-meta">
@@ -276,7 +277,7 @@ export default function AdminDashboard() {
                       <span className={`sla-chip sla-${issue.intelligence.sla_status.toLowerCase()}`}>
                         {issue.intelligence.sla_status.replace('_', ' ')}
                       </span>
-                      <span>{issue.complaint_count} reports</span>
+                      <span>{issue.complaint_count} evidence report{issue.complaint_count === 1 ? '' : 's'}</span>
                     </div>
                   </Link>
                 ))}

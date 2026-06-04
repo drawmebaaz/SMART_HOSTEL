@@ -1,5 +1,5 @@
 import { FormEvent, useEffect, useMemo, useState } from 'react'
-import { BrainCircuit, CheckCircle2, FileText, Languages, LockKeyhole, Send, Sparkles, Zap } from 'lucide-react'
+import { CheckCircle2, ClipboardCheck, FileText, Languages, LockKeyhole, MessageSquareText, Send, ShieldCheck } from 'lucide-react'
 
 import { api } from '../api/client'
 import type { Complaint, ComplaintSubmissionResponse } from '../api/types'
@@ -68,9 +68,9 @@ export default function StudentPortal() {
         <section className="student-hero">
           <div>
             <p className="eyebrow">Student portal</p>
-            <h1>Report hostel issues in natural language</h1>
+            <h1>Report hostel issues without friction</h1>
             <p className="muted hero-copy">
-              Write in English or Hinglish. The system normalizes, classifies, prioritizes, and attaches your report to the right operational issue.
+              Write in English or Hinglish. Your complaint is recorded, classified, and attached to the right hostel issue for administrator review.
             </p>
             <div className="hero-signal-row">
               <span>
@@ -78,8 +78,8 @@ export default function StudentPortal() {
                 Private intake
               </span>
               <span>
-                <Zap aria-hidden="true" />
-                Instant triage
+                <ClipboardCheck aria-hidden="true" />
+                Trackable record
               </span>
             </div>
           </div>
@@ -89,12 +89,12 @@ export default function StudentPortal() {
               English + Hinglish
             </span>
             <span>
-              <BrainCircuit aria-hidden="true" />
-              AI triage
+              <ShieldCheck aria-hidden="true" />
+              Admin reviewed
             </span>
             <span>
               <CheckCircle2 aria-hidden="true" />
-              Trackable issue
+              Issue linked
             </span>
           </div>
         </section>
@@ -135,7 +135,7 @@ export default function StudentPortal() {
               <div className="example-row">
                 {EXAMPLES.map((example) => (
                   <button key={example} type="button" onClick={() => setText(example)}>
-                    <Sparkles aria-hidden="true" />
+                    <MessageSquareText aria-hidden="true" />
                     {example}
                   </button>
                 ))}
@@ -150,13 +150,13 @@ export default function StudentPortal() {
 
           <aside className="surface ai-receipt">
             <div className="section-heading compact">
-              <h2>AI receipt</h2>
-              <Sparkles aria-hidden="true" />
+              <h2>Submission receipt</h2>
+              <ClipboardCheck aria-hidden="true" />
             </div>
             {!lastSubmission && (
               <div className="receipt-placeholder">
-                <BrainCircuit aria-hidden="true" />
-                <p>Submit a report to see classification, urgency, language detection, and issue assignment.</p>
+                <FileText aria-hidden="true" />
+                <p>Submit a complaint to see category, urgency, language detection, and linked issue details.</p>
               </div>
             )}
             {lastSubmission && (
@@ -167,6 +167,7 @@ export default function StudentPortal() {
                 <ReceiptItem label="Embedding" value={lastSubmission.classification.embedding_status.replace('_', ' ')} />
                 <div className="result-panel">
                   <strong>{lastSubmission.issue.title}</strong>
+                  <code>ISS-{lastSubmission.issue.id.slice(0, 8)}</code>
                   <span>{lastSubmission.issue.intelligence.recommended_action}</span>
                 </div>
               </div>
@@ -183,7 +184,7 @@ export default function StudentPortal() {
             {isLoading && <HistorySkeleton />}
             {!isLoading && complaints.length === 0 && (
               <div className="empty-state">
-                <Sparkles aria-hidden="true" />
+                <FileText aria-hidden="true" />
                 <p>No complaints submitted yet.</p>
               </div>
             )}
@@ -192,6 +193,7 @@ export default function StudentPortal() {
                 <div>
                   <strong>{complaint.category}</strong>
                   <p>{complaint.text}</p>
+                  <code>CMP-{complaint.id.slice(0, 8)}</code>
                 </div>
                 <div className="history-meta">
                   <span>{complaint.hostel}</span>

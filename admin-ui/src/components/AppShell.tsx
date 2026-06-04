@@ -1,4 +1,4 @@
-import { ClipboardList, LogOut, RadioTower, ShieldCheck } from 'lucide-react'
+import { Activity, ClipboardList, LogOut, ShieldCheck } from 'lucide-react'
 import { Link, NavLink, useNavigate } from 'react-router-dom'
 
 import { useAuth } from '../auth/AuthContext'
@@ -22,16 +22,16 @@ export function AppShell({ children }: { children: React.ReactNode }) {
             </span>
             <span>
               <strong>Smart Hostel</strong>
-              <small>Grievance AI</small>
+              <small>Operations Desk</small>
             </span>
           </Link>
           <nav className="nav" aria-label="Primary navigation">
-            {user?.role === 'STUDENT' && <NavLink to="/student">Student console</NavLink>}
-            {user?.role === 'ADMIN' && <NavLink to="/admin">Command center</NavLink>}
+            {user?.role === 'STUDENT' && <NavLink to="/student">Student intake</NavLink>}
+            {user?.role === 'ADMIN' && <NavLink to="/admin">Issue desk</NavLink>}
           </nav>
           <div className="topbar-status" aria-label="System status">
-            <RadioTower aria-hidden="true" />
-            <span>Live</span>
+            <Activity aria-hidden="true" />
+            <span>Online</span>
           </div>
           <div className="account">
             <ShieldCheck aria-hidden="true" />

@@ -1,7 +1,7 @@
 import { FormEvent, useCallback, useEffect, useState } from 'react'
 import type { ReactNode } from 'react'
 import { Link, useParams } from 'react-router-dom'
-import { ArrowLeft, BrainCircuit, Clock, FileText, Save, ShieldAlert, Sparkles, Users } from 'lucide-react'
+import { ArrowLeft, ClipboardCheck, Clock, FileText, Save, ShieldAlert, Users } from 'lucide-react'
 
 import { api } from '../api/client'
 import type { IssueDetail, IssueStatus } from '../api/types'
@@ -61,10 +61,11 @@ export default function IssueDetailPage() {
               <div>
                 <p className="eyebrow">{issue.hostel} / {issue.category}</p>
                 <h1>{issue.title}</h1>
+                <code>ISS-{issue.id.slice(0, 8)}</code>
                 <p className="muted hero-copy">{issue.intelligence.recommended_action}</p>
                 <div className="hero-signal-row">
                   <span>
-                    <BrainCircuit aria-hidden="true" />
+                    <ShieldAlert aria-hidden="true" />
                     {issue.intelligence.health_label}
                   </span>
                   <span>
@@ -102,7 +103,7 @@ export default function IssueDetailPage() {
                 <div className="evidence-list">
                   {issue.complaints.length === 0 && (
                     <div className="empty-state">
-                      <Sparkles aria-hidden="true" />
+                      <FileText aria-hidden="true" />
                       <p>No complaint evidence is attached yet.</p>
                     </div>
                   )}
@@ -111,6 +112,7 @@ export default function IssueDetailPage() {
                       <div>
                         <strong>{complaint.urgency}</strong>
                         <p>{complaint.text}</p>
+                        <code>CMP-{complaint.id.slice(0, 8)}</code>
                         <small>
                           {complaint.language} / {complaint.embedding_status.replace('_', ' ')} /{' '}
                           {formatDateTime(complaint.created_at)}
@@ -125,7 +127,7 @@ export default function IssueDetailPage() {
               </div>
 
               <aside className="surface">
-                <h2>Admin action</h2>
+                <h2>Resolution update</h2>
                 <form className="form-stack" onSubmit={submit}>
                   <label htmlFor="issue-status">
                     Status
@@ -156,7 +158,7 @@ export default function IssueDetailPage() {
                 <div className="timeline">
                   {issue.events.length === 0 && (
                     <div className="empty-state">
-                      <Sparkles aria-hidden="true" />
+                      <ClipboardCheck aria-hidden="true" />
                       <p>No admin decisions recorded yet.</p>
                     </div>
                   )}

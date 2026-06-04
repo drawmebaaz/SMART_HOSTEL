@@ -1,6 +1,6 @@
 import { FormEvent, useState } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
-import { ArrowRight, CheckCircle2, KeyRound, UserPlus } from 'lucide-react'
+import { ArrowRight, CheckCircle2, ClipboardCheck, KeyRound, UserPlus } from 'lucide-react'
 
 import { useAuth } from '../auth/AuthContext'
 
@@ -30,18 +30,22 @@ export default function RegisterPage() {
       <section className="auth-layout compact-auth" aria-label="Student registration">
         <div className="auth-intel-panel">
           <p className="eyebrow">Student intake</p>
-          <h1>Join the grievance grid</h1>
+          <h1>Report hostel problems clearly</h1>
           <p className="muted">
-            Submit hostel signals in natural language and keep every complaint traceable to an operational issue.
+            Create a student account to submit complaints, keep a record of reports, and help administrators identify grouped issues faster.
           </p>
           <div className="auth-signal-grid" aria-label="Student account capabilities">
             <span>
-              <CheckCircle2 aria-hidden="true" />
-              Trackable
+              <ClipboardCheck aria-hidden="true" />
+              Recorded
             </span>
             <span>
               <KeyRound aria-hidden="true" />
               Private
+            </span>
+            <span>
+              <CheckCircle2 aria-hidden="true" />
+              Trackable
             </span>
           </div>
         </div>
@@ -50,7 +54,7 @@ export default function RegisterPage() {
           <div>
             <p className="eyebrow">Student access</p>
             <h2>Create account</h2>
-            <p className="muted">Admin accounts are created from the server-side admin script.</p>
+            <p className="muted">Admin accounts are provisioned separately for hostel staff.</p>
           </div>
         <form onSubmit={submit} className="form-stack">
           <label htmlFor="register-name">

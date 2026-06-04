@@ -1,6 +1,6 @@
 import { FormEvent, useState } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
-import { ArrowRight, BrainCircuit, Fingerprint, LogIn, RadioTower, ShieldCheck } from 'lucide-react'
+import { ArrowRight, Building2, ClipboardList, Fingerprint, LogIn, ShieldCheck, TimerReset } from 'lucide-react'
 
 import { oauthProvider, oauthStartUrl } from '../api/client'
 import { useAuth } from '../auth/AuthContext'
@@ -31,23 +31,23 @@ export default function LoginPage() {
     <main className="auth-page">
       <section className="auth-layout" aria-label="Smart Hostel Grievance sign in">
         <div className="auth-intel-panel">
-          <p className="eyebrow">Hostel operations AI</p>
-          <h1>Command access</h1>
+          <p className="eyebrow">Institution access</p>
+          <h1>Grievance operations desk</h1>
           <p className="muted">
-            Real-time grievance intake, risk clustering, SLA pressure, and action intelligence for hostel teams.
+            A secure workspace for campus teams to monitor hostel issues, response pressure, evidence, and resolution status.
           </p>
           <div className="auth-signal-grid" aria-label="Platform signals">
             <span>
-              <BrainCircuit aria-hidden="true" />
-              AI triage
+              <ClipboardList aria-hidden="true" />
+              Issue grouping
             </span>
             <span>
-              <RadioTower aria-hidden="true" />
-              Live queue
+              <TimerReset aria-hidden="true" />
+              SLA visibility
             </span>
             <span>
               <ShieldCheck aria-hidden="true" />
-              Role gated
+              Role-based
             </span>
           </div>
         </div>
@@ -56,7 +56,7 @@ export default function LoginPage() {
           <div>
             <p className="eyebrow">Secure session</p>
             <h2>Sign in</h2>
-            <p className="muted">Use your student or admin account.</p>
+            <p className="muted">Use your student or administrator account.</p>
           </div>
         <form onSubmit={submit} className="form-stack">
           <label htmlFor="login-email">
@@ -100,6 +100,10 @@ export default function LoginPage() {
             <ArrowRight aria-hidden="true" />
           </Link>
         </p>
+        <div className="auth-footnote">
+          <Building2 aria-hidden="true" />
+          <span>Built for hostel operations, evidence review, and issue resolution.</span>
+        </div>
         </div>
       </section>
     </main>
