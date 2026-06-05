@@ -1,7 +1,7 @@
 import { FormEvent, useCallback, useEffect, useState } from 'react'
 import type { ReactNode } from 'react'
 import { Link, useParams } from 'react-router-dom'
-import { ArrowLeft, ClipboardCheck, Clock, FileText, Save, ShieldAlert, Users } from 'lucide-react'
+import { ArrowLeft, ClipboardCheck, Clock, FileText, MessageSquareText, Save, ShieldAlert, Users } from 'lucide-react'
 
 import { api } from '../api/client'
 import type { IssueDetail, IssueStatus } from '../api/types'
@@ -10,6 +10,12 @@ import { StatusBadge } from '../components/StatusBadge'
 import { formatDateTime } from '../utils/time'
 
 const STATUSES: IssueStatus[] = ['OPEN', 'IN_PROGRESS', 'REOPENED', 'RESOLVED']
+const NOTE_TEMPLATES = [
+  'Maintenance owner assigned.',
+  'Warden informed and student update sent.',
+  'Inspection scheduled for today.',
+  'Resolved after verification.',
+]
 
 export default function IssueDetailPage() {
   const { issueId } = useParams()
@@ -113,8 +119,10 @@ export default function IssueDetailPage() {
                         <strong>{complaint.urgency}</strong>
                         <p>{complaint.text}</p>
                         <code>CMP-{complaint.id.slice(0, 8)}</code>
+                        <EvidenceContext complaint={complaint} />
                         <small>
-                          {complaint.language} / {complaint.embedding_status.replace('_', ' ')} /{' '}
+                          {complaint.student_name ?? 'Student'} / {complaint.language} /{' '}
+                          {complaint.embedding_status.replace('_', ' ')} /{' '}
                           {formatDateTime(complaint.created_at)}
                         </small>
                       </div>
@@ -149,6 +157,14 @@ export default function IssueDetailPage() {
                       placeholder="Add a short operational update"
                     />
                   </label>
+                  <div className="note-templates" aria-label="Quick note templates">
+                    {NOTE_TEMPLATES.map((template) => (
+                      <button key={template} type="button" onClick={() => setNotes(template)}>
+                        <MessageSquareText aria-hidden="true" />
+                        {template}
+                      </button>
+                    ))}
+                  </div>
                   <button className="primary-button" type="submit" disabled={isSaving}>
                     <Save aria-hidden="true" />
                     {isSaving ? 'Saving...' : 'Save status'}
@@ -182,6 +198,23 @@ export default function IssueDetailPage() {
         )}
       </div>
     </AppShell>
+  )
+}
+
+function EvidenceContext({ complaint }: { complaint: IssueDetail['complaints'][number] }) {
+  const location = typeof complaint.metadata.location_detail === 'string' ? complaint.metadata.location_detail : ''
+  const impact = typeof complaint.metadata.impact_scope === 'string' ? complaint.metadata.impact_scope : ''
+  const contact =
+    typeof complaint.metadata.contact_permission === 'boolean' ? complaint.metadata.contact_permission : null
+  if (!location && !impact && contact === null) {
+    return null
+  }
+  return (
+    <div className="evidence-context">
+      {location && <span>{location}</span>}
+      {impact && <span>{impact}</span>}
+      {contact !== null && <span>{contact ? 'Contact allowed' : 'No contact needed'}</span>}
+    </div>
   )
 }
 

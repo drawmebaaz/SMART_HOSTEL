@@ -36,6 +36,13 @@ class ComplaintPublic(BaseModel):
     duplicate_of: str | None
     similarity_score: float | None
     embedding_status: str
+    metadata: dict[str, Any] = Field(default_factory=dict)
+    student_name: str | None = None
+    issue_title: str | None = None
+    issue_status: str | None = None
+    issue_priority_score: float | None = None
+    issue_sla_status: str | None = None
+    issue_recommended_action: str | None = None
     created_at: datetime
 
 

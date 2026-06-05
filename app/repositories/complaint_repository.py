@@ -1,7 +1,7 @@
 from uuid import uuid4
 
 from sqlalchemy import select
-from sqlalchemy.orm import Session
+from sqlalchemy.orm import Session, selectinload
 
 from app.db.models.complaint import ComplaintModel
 
@@ -19,6 +19,7 @@ class ComplaintRepository:
     def list_for_student(self, student_id: str, *, limit: int = 50) -> list[ComplaintModel]:
         stmt = (
             select(ComplaintModel)
+            .options(selectinload(ComplaintModel.issue), selectinload(ComplaintModel.student))
             .where(ComplaintModel.student_id == student_id)
             .order_by(ComplaintModel.created_at.desc())
             .limit(limit)
@@ -28,6 +29,7 @@ class ComplaintRepository:
     def list_by_issue(self, issue_id: str, *, limit: int = 200) -> list[ComplaintModel]:
         stmt = (
             select(ComplaintModel)
+            .options(selectinload(ComplaintModel.issue), selectinload(ComplaintModel.student))
             .where(ComplaintModel.issue_id == issue_id)
             .order_by(ComplaintModel.created_at.desc())
             .limit(limit)

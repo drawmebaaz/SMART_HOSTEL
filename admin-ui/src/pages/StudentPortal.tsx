@@ -4,9 +4,11 @@ import { CheckCircle2, ClipboardCheck, FileText, Languages, LockKeyhole, Message
 import { api } from '../api/client'
 import type { Complaint, ComplaintSubmissionResponse } from '../api/types'
 import { AppShell } from '../components/AppShell'
+import { StatusBadge } from '../components/StatusBadge'
 import { formatDateTime } from '../utils/time'
 
 const HOSTELS = ['BH-1', 'BH-2', 'BH-3', 'BH-4', 'BH-5', 'GH-1', 'GH-2', 'GH-3', 'New Hostel', 'Old Hostel']
+const IMPACT_OPTIONS = ['Only my room', 'Same floor', 'Whole wing', 'Common area', 'Multiple students']
 const EXAMPLES = [
   'Paani nahi aa raha in BH-3 washroom since morning',
   'Electric spark near the second floor switchboard',
@@ -16,6 +18,11 @@ const EXAMPLES = [
 export default function StudentPortal() {
   const [text, setText] = useState('')
   const [hostel, setHostel] = useState(HOSTELS[0])
+  const [context, setContext] = useState({
+    location: '',
+    impact: IMPACT_OPTIONS[0],
+    contactPermission: true,
+  })
   const [complaints, setComplaints] = useState<Complaint[]>([])
   const [lastSubmission, setLastSubmission] = useState<ComplaintSubmissionResponse | null>(null)
   const [error, setError] = useState('')
@@ -44,10 +51,16 @@ export default function StudentPortal() {
       const result = await api.submitComplaint({
         text,
         hostel,
-        metadata: { source: 'student_portal' },
+        metadata: {
+          source: 'student_portal',
+          location_detail: context.location.trim() || null,
+          impact_scope: context.impact,
+          contact_permission: context.contactPermission,
+        },
       })
       setLastSubmission(result)
       setText('')
+      setContext((current) => ({ ...current, location: '' }))
       await loadComplaints()
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Unable to submit complaint')
@@ -132,6 +145,47 @@ export default function StudentPortal() {
                   required
                 />
               </label>
+              <div className="context-grid">
+                <label htmlFor="location-detail">
+                  Exact location <small>Optional</small>
+                  <input
+                    id="location-detail"
+                    value={context.location}
+                    onChange={(event) =>
+                      setContext((current) => ({ ...current, location: event.target.value }))
+                    }
+                    maxLength={120}
+                    placeholder="Room 214, 2nd floor washroom, mess counter..."
+                  />
+                </label>
+                <label htmlFor="impact-scope">
+                  Impact
+                  <select
+                    id="impact-scope"
+                    value={context.impact}
+                    onChange={(event) =>
+                      setContext((current) => ({ ...current, impact: event.target.value }))
+                    }
+                  >
+                    {IMPACT_OPTIONS.map((value) => (
+                      <option key={value} value={value}>
+                        {value}
+                      </option>
+                    ))}
+                  </select>
+                </label>
+              </div>
+              <label className="checkbox-row" htmlFor="contact-permission">
+                <input
+                  id="contact-permission"
+                  type="checkbox"
+                  checked={context.contactPermission}
+                  onChange={(event) =>
+                    setContext((current) => ({ ...current, contactPermission: event.target.checked }))
+                  }
+                />
+                <span>Allow hostel staff to contact me if they need clarification.</span>
+              </label>
               <div className="example-row">
                 {EXAMPLES.map((example) => (
                   <button key={example} type="button" onClick={() => setText(example)}>
@@ -161,13 +215,14 @@ export default function StudentPortal() {
             )}
             {lastSubmission && (
               <div className="receipt-stack">
+                <ReceiptItem label="Reference" value={`CMP-${lastSubmission.complaint.id.slice(0, 8)}`} />
                 <ReceiptItem label="Category" value={lastSubmission.classification.category} />
                 <ReceiptItem label="Urgency" value={lastSubmission.classification.urgency} />
                 <ReceiptItem label="Language" value={lastSubmission.classification.language} />
-                <ReceiptItem label="Embedding" value={lastSubmission.classification.embedding_status.replace('_', ' ')} />
                 <div className="result-panel">
                   <strong>{lastSubmission.issue.title}</strong>
                   <code>ISS-{lastSubmission.issue.id.slice(0, 8)}</code>
+                  <StatusBadge status={lastSubmission.issue.status} />
                   <span>{lastSubmission.issue.intelligence.recommended_action}</span>
                 </div>
               </div>
@@ -191,13 +246,21 @@ export default function StudentPortal() {
             {complaints.map((complaint) => (
               <article className="history-row" key={complaint.id}>
                 <div>
-                  <strong>{complaint.category}</strong>
+                  <div className="history-title">
+                    <strong>{complaint.issue_title ?? `${complaint.category} issue`}</strong>
+                    {complaint.issue_status && <StatusBadge status={complaint.issue_status} />}
+                  </div>
                   <p>{complaint.text}</p>
                   <code>CMP-{complaint.id.slice(0, 8)}</code>
+                  <EvidenceContext complaint={complaint} />
+                  {complaint.issue_recommended_action && (
+                    <small className="history-action">{complaint.issue_recommended_action}</small>
+                  )}
                 </div>
                 <div className="history-meta">
                   <span>{complaint.hostel}</span>
                   <span>{complaint.urgency}</span>
+                  {complaint.issue_sla_status && <span>{complaint.issue_sla_status.replace('_', ' ')}</span>}
                   <small>{formatDateTime(complaint.created_at)}</small>
                 </div>
               </article>
@@ -214,6 +277,23 @@ function ReceiptItem({ label, value }: { label: string; value: string }) {
     <div className="receipt-item">
       <span>{label}</span>
       <strong>{value}</strong>
+    </div>
+  )
+}
+
+function EvidenceContext({ complaint }: { complaint: Complaint }) {
+  const location = typeof complaint.metadata.location_detail === 'string' ? complaint.metadata.location_detail : ''
+  const impact = typeof complaint.metadata.impact_scope === 'string' ? complaint.metadata.impact_scope : ''
+  const contact =
+    typeof complaint.metadata.contact_permission === 'boolean' ? complaint.metadata.contact_permission : null
+  if (!location && !impact && contact === null) {
+    return null
+  }
+  return (
+    <div className="evidence-context">
+      {location && <span>{location}</span>}
+      {impact && <span>{impact}</span>}
+      {contact !== null && <span>{contact ? 'Contact allowed' : 'No contact needed'}</span>}
     </div>
   )
 }

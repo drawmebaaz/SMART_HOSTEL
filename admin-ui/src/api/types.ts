@@ -24,6 +24,13 @@ export interface Complaint {
   duplicate_of: string | null
   similarity_score: number | null
   embedding_status: string
+  metadata: Record<string, unknown>
+  student_name: string | null
+  issue_title: string | null
+  issue_status: IssueStatus | string | null
+  issue_priority_score: number | null
+  issue_sla_status: 'ON_TRACK' | 'AT_RISK' | 'BREACHED' | 'RESOLVED' | string | null
+  issue_recommended_action: string | null
   created_at: string
 }
 

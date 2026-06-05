@@ -43,7 +43,10 @@ class IssueRepository:
     def get_by_id(self, issue_id: str, *, include_details: bool = False) -> IssueModel | None:
         stmt: Select[tuple[IssueModel]] = select(IssueModel).where(IssueModel.id == issue_id)
         if include_details:
-            stmt = stmt.options(joinedload(IssueModel.complaints), joinedload(IssueModel.events))
+            stmt = stmt.options(
+                joinedload(IssueModel.complaints).joinedload(ComplaintModel.student),
+                joinedload(IssueModel.events),
+            )
         return self.db.execute(stmt).unique().scalar_one_or_none()
 
     def list_candidates(self, hostel: str, category: str) -> list[IssueModel]:

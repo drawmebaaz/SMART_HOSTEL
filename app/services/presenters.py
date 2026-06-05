@@ -73,6 +73,8 @@ def issue_intelligence(issue: IssueModel) -> dict:
 
 
 def complaint_public(complaint: ComplaintModel) -> dict:
+    linked_issue = complaint.issue
+    linked_issue_intelligence = issue_intelligence(linked_issue) if linked_issue else None
     return {
         "id": complaint.id,
         "issue_id": complaint.issue_id,
@@ -87,6 +89,13 @@ def complaint_public(complaint: ComplaintModel) -> dict:
         "duplicate_of": complaint.duplicate_of,
         "similarity_score": complaint.similarity_score,
         "embedding_status": complaint.embedding_status,
+        "metadata": complaint.extra_metadata or {},
+        "student_name": complaint.student.name if complaint.student else None,
+        "issue_title": linked_issue.title if linked_issue else None,
+        "issue_status": linked_issue.status if linked_issue else None,
+        "issue_priority_score": linked_issue_intelligence["priority_score"] if linked_issue_intelligence else None,
+        "issue_sla_status": linked_issue_intelligence["sla_status"] if linked_issue_intelligence else None,
+        "issue_recommended_action": linked_issue_intelligence["recommended_action"] if linked_issue_intelligence else None,
         "created_at": utc_datetime(complaint.created_at),
     }
 
