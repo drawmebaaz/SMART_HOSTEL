@@ -31,23 +31,23 @@ export default function LoginPage() {
     <main className="auth-page">
       <section className="auth-layout" aria-label="Smart Hostel Grievance sign in">
         <div className="auth-intel-panel">
-          <p className="eyebrow">Institution access</p>
-          <h1>Grievance operations desk</h1>
+          <p className="eyebrow">Hostel access</p>
+          <h1>Hostel complaint help desk</h1>
           <p className="muted">
-            A secure workspace for campus teams to monitor hostel issues, response pressure, evidence, and resolution status.
+            One place for students to report hostel problems and for staff to see what needs attention first.
           </p>
-          <div className="auth-signal-grid" aria-label="Platform signals">
+          <div className="auth-signal-grid" aria-label="Platform highlights">
             <span>
               <ClipboardList aria-hidden="true" />
-              Issue grouping
+              Similar reports together
             </span>
             <span>
               <TimerReset aria-hidden="true" />
-              SLA visibility
+              Time left
             </span>
             <span>
               <ShieldCheck aria-hidden="true" />
-              Role-based
+              Student and admin access
             </span>
           </div>
         </div>
@@ -102,7 +102,7 @@ export default function LoginPage() {
         </p>
         <div className="auth-footnote">
           <Building2 aria-hidden="true" />
-          <span>Built for hostel operations, evidence review, and issue resolution.</span>
+          <span>Built for students, wardens, and hostel maintenance teams.</span>
         </div>
         </div>
       </section>

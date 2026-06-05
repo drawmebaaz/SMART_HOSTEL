@@ -29,10 +29,10 @@ export default function RegisterPage() {
     <main className="auth-page">
       <section className="auth-layout compact-auth" aria-label="Student registration">
         <div className="auth-intel-panel">
-          <p className="eyebrow">Student intake</p>
+          <p className="eyebrow">Student account</p>
           <h1>Report hostel problems clearly</h1>
           <p className="muted">
-            Create a student account to submit complaints, keep a record of reports, and help administrators identify grouped issues faster.
+            Create an account to send complaints, check your past reports, and help hostel staff fix repeated problems faster.
           </p>
           <div className="auth-signal-grid" aria-label="Student account capabilities">
             <span>

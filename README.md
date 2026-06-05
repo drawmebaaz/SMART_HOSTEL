@@ -1,135 +1,118 @@
 # Smart Hostel Grievance
 
-Smart Hostel Grievance is a production-oriented hostel complaint intelligence platform. Students submit real grievances in English or Hinglish, the system classifies and groups related complaints, and admins manage a prioritized issue queue with SLA pressure, risk scoring, recommended actions, and complaint evidence.
+A full-stack hostel complaint platform where students report problems and hostel staff manage them from a focused admin dashboard.
 
-This project was rebuilt from a prototype into a full-stack FastAPI + React TypeScript application with authentication, database migrations, Docker deployment, and a polished command-center UI.
-
-## Live Demo
-
-Live app: [https://smart-hostel-grievance.onrender.com](https://smart-hostel-grievance.onrender.com)
-
-Health check: [https://smart-hostel-grievance.onrender.com/api/v1/health](https://smart-hostel-grievance.onrender.com/api/v1/health)
+Live demo: [https://smart-hostel-grievance.onrender.com](https://smart-hostel-grievance.onrender.com)
 
 Render free-tier apps may take a short time to wake up after inactivity.
 
-Demo accounts:
+## Demo Accounts
 
 ```text
 Admin:   admin@example.com / YourStrongPassword123
 Student: student@example.com / StudentPassword123
 ```
 
+## What The Project Does
+
+Smart Hostel Grievance helps hostels move from scattered complaints to clear action.
+
+Students can:
+
+- Create an account and log in securely.
+- Submit hostel complaints in English or Hinglish.
+- Add useful context such as hostel, exact location, impact, and contact permission.
+- See what was understood from their complaint.
+- Track recent complaints and their current status.
+
+Admins can:
+
+- See the most urgent hostel problems first.
+- View similar student complaints together instead of as separate scattered reports.
+- Filter problems by hostel, category, status, and time pressure.
+- Open each problem and review the student reports behind it.
+- Add updates and move problems through resolution states.
+
 ## Why It Stands Out
 
-- Real grievance intake instead of mock dashboard data
-- Role-based student and admin workflows
-- English + Hinglish complaint normalization
-- AI-assisted category and urgency classification
-- Complaint grouping into operational issues
-- SLA-aware triage and risk scoring
-- Recommended admin actions for every issue
-- Admin issue history with complaint evidence
-- Secure HTTP-only cookie authentication
-- Production database schema with Alembic migrations
-- Docker and Render deployment support
+- Real student and admin workflows instead of a static dashboard.
+- Similar complaints are grouped into one problem so staff avoid duplicate work.
+- English and Hinglish complaint handling.
+- Clear priority sorting so admins know what needs attention first.
+- Student-friendly complaint form with low-friction context fields.
+- Admin dashboard built for daily use: search, filters, status badges, history, and quick updates.
+- Secure login with student/admin roles and HTTP-only cookies.
+- Production-oriented backend structure with routers, services, repositories, schemas, and migrations.
+- Free deployment-ready setup using Render and Neon.
 
-## Core Workflows
+## Screens And Workflows
 
-### Student
+### Student Side
 
-1. Register or log in.
-2. Submit a hostel complaint with hostel context.
-3. See AI classification, urgency, and linked issue information.
-4. Track previously submitted complaints.
+1. Student logs in or creates an account.
+2. Student selects hostel and writes the complaint.
+3. Student optionally adds exact location, impact, and contact permission.
+4. The system saves the complaint and links it to the right hostel problem.
+5. Student can view recent complaints and current status.
 
-### Admin
+### Admin Side
 
-1. Log in as an admin.
-2. View live operational metrics and prioritized issues.
-3. Filter issue queue by status.
-4. Open detailed issue pages with complaint evidence and history.
-5. Update issue status as resolution progresses.
+1. Admin logs in.
+2. Dashboard shows problems sorted by priority.
+3. Admin filters by hostel, category, status, or time status.
+4. Admin opens a problem to review all related student reports.
+5. Admin updates status and adds a short note.
 
 ## Tech Stack
 
-### Backend
+Backend:
 
 - FastAPI
-- SQLAlchemy 2
+- SQLAlchemy
 - Alembic
-- PostgreSQL
-- pgvector
-- Pydantic settings
-- JWT auth with secure HTTP-only cookies
-- Local hybrid AI classification and embeddings
-- Optional `sentence-transformers` support
+- PostgreSQL for deployment
+- SQLite option for quick local development
+- Pydantic settings and schemas
+- Cookie-based authentication
+- Local complaint classification and grouping logic
 
-### Frontend
+Frontend:
 
-- React 18
+- React
 - Vite
 - TypeScript
 - Tailwind CSS
 - React Router
 - Lucide icons
-- Componentized API, auth, dashboard, issue, and student flows
 
-### Deployment
+Deployment:
 
-- Docker Compose for local/VPS deployment
-- Render Blueprint deployment
-- Neon Postgres for the hosted demo
-- Single-service Render image serving both React and FastAPI
+- Render free web service
+- Neon PostgreSQL
+- Docker support
 
-## Architecture
-
-```text
-Student/Admin Browser
-        |
-        v
-React + Vite UI
-        |
-        v
-FastAPI /api/v1
-        |
-        +--> Auth service
-        +--> Complaint service
-        +--> Admin issue service
-        +--> AI classification layer
-        |
-        v
-SQLAlchemy repositories
-        |
-        v
-PostgreSQL + pgvector
-```
-
-Backend structure:
+## Project Structure
 
 ```text
 app/
-  api/v1/          HTTP routers
-  services/        business logic
+  api/v1/          API routes
+  services/        main app logic
   repositories/    database access
-  db/models/       SQLAlchemy models
-  schemas/         request/response schemas
-  ai/              normalization, classification, embeddings
+  db/models/       database models
+  schemas/         request and response shapes
+  ai/              complaint understanding and grouping
   core/            config and security
-```
 
-Frontend structure:
-
-```text
 admin-ui/src/
-  api/             typed API client
-  auth/            auth provider and session state
-  components/      shared shell and UI components
+  api/             frontend API client
+  auth/            login/session state
+  components/      shared UI pieces
   pages/           login, register, student, admin, issue detail
-  styles/          application styling
-  utils/           time and formatting helpers
+  styles/          app styling
+  utils/           time formatting helpers
 ```
 
-## API Surface
+## API Overview
 
 Auth:
 
@@ -137,8 +120,6 @@ Auth:
 - `POST /api/v1/auth/login`
 - `POST /api/v1/auth/logout`
 - `GET /api/v1/auth/me`
-- `GET /api/v1/auth/oauth/{provider}/start`
-- `GET /api/v1/auth/oauth/{provider}/callback`
 
 Complaints:
 
@@ -157,7 +138,7 @@ Health:
 - `GET /api/v1/health`
 - `GET /api/v1/ready`
 
-## Local Development
+## Run Locally
 
 Create an environment file:
 
@@ -165,23 +146,24 @@ Create an environment file:
 cp .env.example .env
 ```
 
-For lightweight local development, use SQLite:
+For simple laptop development, use SQLite:
 
 ```env
+ENVIRONMENT=local
 DATABASE_URL=sqlite:///./data/dev.db
 AUTO_CREATE_TABLES=true
 SECRET_KEY=replace-with-at-least-32-random-characters
 ENABLE_TRANSFORMER_EMBEDDINGS=false
 ```
 
-Run the backend:
+Install and run the backend:
 
 ```bash
 pip install -r requirements.txt
 uvicorn app.main:app --reload
 ```
 
-Run the frontend:
+Install and run the frontend:
 
 ```bash
 cd admin-ui
@@ -189,14 +171,30 @@ npm install
 npm run dev
 ```
 
-Local URLs:
+Default local URLs:
 
 ```text
 Frontend: http://localhost:3000
 API docs: http://localhost:8000/api/v1/docs
+Health:   http://localhost:8000/api/v1/health
 ```
 
-Seed demo data:
+If port `8000` is already busy, run the backend on another port and point Vite to it:
+
+```bash
+uvicorn app.main:app --reload --port 8010
+cd admin-ui
+VITE_API_PROXY_TARGET=http://127.0.0.1:8010 npm run dev -- --port 3001
+```
+
+On Windows PowerShell:
+
+```powershell
+$env:VITE_API_PROXY_TARGET="http://127.0.0.1:8010"
+npm run dev -- --port 3001
+```
+
+Seed demo users and sample complaints:
 
 ```bash
 python scripts/seed_demo.py
@@ -208,47 +206,22 @@ Create or update an admin:
 python scripts/create_admin.py --email admin@example.com --name "Hostel Admin" --password "YourStrongPassword123"
 ```
 
-## Docker Compose
+## Deploy For Free
 
-Run the full stack locally with PostgreSQL and Nginx:
-
-```bash
-cp .env.example .env
-# edit SECRET_KEY, POSTGRES_PASSWORD, CORS_ORIGINS, and cookie settings
-docker compose up --build -d
-```
-
-The backend container runs:
-
-```bash
-alembic upgrade head
-uvicorn app.main:app
-```
-
-Docker URLs:
+Recommended free setup:
 
 ```text
-App:     http://localhost
-Backend: http://localhost:8000
-Health:  http://localhost/api/v1/health
+App hosting: Render Free Web Service
+Database:    Neon Free PostgreSQL
 ```
 
-## Free Deployment
+Useful deployment files:
 
-This repository includes a free public deployment path:
+- `Dockerfile.render`
+- `render.yaml`
+- `deploy/RENDER_FREE.md`
 
-- `Dockerfile.render` builds the React UI and serves it from FastAPI.
-- `render.yaml` defines the Render web service.
-- `deploy/RENDER_FREE.md` contains the step-by-step deployment checklist.
-
-Recommended free hosted setup:
-
-```text
-Frontend + Backend: Render Free Web Service
-Database: Neon Free PostgreSQL
-```
-
-Use a Neon connection string with the SQLAlchemy driver prefix:
+Use a Neon database URL with the SQLAlchemy driver prefix:
 
 ```text
 postgresql+psycopg://USER:PASSWORD@HOST/DATABASE?sslmode=require
@@ -268,21 +241,34 @@ Frontend:
 ```bash
 cd admin-ui
 npm run lint
-npm run test
 npm run build
 ```
 
-## Production Notes
+## Resume Version
+
+Use this as the project entry on your resume:
+
+**Smart Hostel Grievance Management System**  
+React, TypeScript, FastAPI, Python, SQLAlchemy, Alembic, PostgreSQL, Tailwind CSS
+
+- Built a full-stack hostel complaint platform with separate student and admin workflows, secure login, role-based access, and a live deployed demo.
+- Designed a student complaint flow supporting English and Hinglish reports, hostel selection, exact location, impact scope, and complaint history tracking.
+- Developed an admin dashboard that groups similar complaints into actionable hostel problems and sorts them by priority for faster resolution.
+- Added admin search and filters across hostel, category, status, and time pressure to help staff quickly find high-priority issues.
+- Implemented issue detail pages with related student reports, status updates, admin notes, and full update history.
+- Structured the backend with FastAPI routers, service layer, repository layer, typed schemas, SQLAlchemy models, and Alembic migrations.
+- Improved production readiness with HTTP-only cookie authentication, environment-based configuration, automated tests, linting, Docker support, and Render/Neon deployment.
+
+Short resume summary:
+
+```text
+Smart Hostel Grievance is a deployed full-stack complaint management platform that lets students report hostel problems and helps admins prioritize, group, track, and resolve them through a production-ready React + FastAPI dashboard.
+```
+
+## Notes
 
 - Keep `.env` private.
-- Rotate demo passwords before sharing beyond a controlled demo.
-- Set `SECURE_COOKIES=true` for HTTPS deployments.
-- Keep `ENABLE_TRANSFORMER_EMBEDDINGS=false` on small free instances.
-- Use Alembic migrations as the source of truth for schema changes.
-- Avoid committing local database files, logs, generated artifacts, or dependency folders.
-
-## Status
-
-The project is deployed and running publicly on Render:
-
-[https://smart-hostel-grievance.onrender.com](https://smart-hostel-grievance.onrender.com)
+- Change demo passwords before sharing outside a controlled demo.
+- Use `SECURE_COOKIES=true` on HTTPS production deployments.
+- Keep transformer embeddings disabled on very small free servers unless enough memory is available.
+- Do not commit local database files, logs, generated artifacts, or dependency folders.

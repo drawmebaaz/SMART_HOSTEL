@@ -31,7 +31,7 @@ describe('StudentPortal', () => {
       </BrowserRouter>,
     )
 
-    expect(await screen.findByText('Submit a grievance')).toBeInTheDocument()
+    expect(await screen.findByText('Tell us what happened')).toBeInTheDocument()
     expect(screen.getByLabelText('Hostel')).toBeInTheDocument()
     expect(screen.getByLabelText('Complaint')).toBeInTheDocument()
   })

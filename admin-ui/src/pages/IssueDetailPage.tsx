@@ -76,7 +76,7 @@ export default function IssueDetailPage() {
                   </span>
                   <span>
                     <Clock aria-hidden="true" />
-                    {issue.intelligence.sla_status.replace('_', ' ')}
+                    {formatTimeStatus(issue.intelligence.sla_status)}
                   </span>
                 </div>
               </div>
@@ -84,33 +84,33 @@ export default function IssueDetailPage() {
             </section>
 
             <section className="metric-grid premium">
-              <Metric icon={<ShieldAlert />} label="Priority" value={issue.priority_score} caption="Risk pressure" />
+              <Metric icon={<ShieldAlert />} label="Priority" value={issue.priority_score} caption="How urgent this looks" />
               <Metric
                 icon={<Users />}
-                label="Affected estimate"
+                label="Students affected"
                 value={issue.intelligence.affected_students_estimate}
-                caption="Student impact"
+                caption="Estimated from reports"
               />
               <Metric
                 icon={<Clock />}
-                label="SLA"
+                label="Time left"
                 value={formatSlaValue(issue.intelligence.minutes_remaining)}
                 caption={issue.intelligence.minutes_remaining < 0 ? 'Overdue' : 'Remaining'}
               />
-              <Metric icon={<ShieldAlert />} label="Health" value={issue.intelligence.health_score} caption="Operational score" />
+              <Metric icon={<ShieldAlert />} label="Condition" value={issue.intelligence.health_score} caption="How serious it looks" />
             </section>
 
             <section className="workspace-grid">
               <div className="surface wide">
                 <div className="section-heading compact">
-                  <h2>Complaint evidence</h2>
+                  <h2>Student reports</h2>
                   <FileText aria-hidden="true" />
                 </div>
                 <div className="evidence-list">
                   {issue.complaints.length === 0 && (
                     <div className="empty-state">
                       <FileText aria-hidden="true" />
-                      <p>No complaint evidence is attached yet.</p>
+                      <p>No student reports are attached yet.</p>
                     </div>
                   )}
                   {issue.complaints.map((complaint) => (
@@ -142,7 +142,7 @@ export default function IssueDetailPage() {
                     <select id="issue-status" value={status} onChange={(event) => setStatus(event.target.value as IssueStatus)}>
                       {STATUSES.map((value) => (
                         <option key={value} value={value}>
-                          {value.replace('_', ' ')}
+                          {formatStatus(value)}
                         </option>
                       ))}
                     </select>
@@ -154,7 +154,7 @@ export default function IssueDetailPage() {
                       value={notes}
                       onChange={(event) => setNotes(event.target.value)}
                       rows={4}
-                      placeholder="Add a short operational update"
+                      placeholder="Add a short update"
                     />
                   </label>
                   <div className="note-templates" aria-label="Quick note templates">
@@ -170,7 +170,7 @@ export default function IssueDetailPage() {
                     {isSaving ? 'Saving...' : 'Save status'}
                   </button>
                 </form>
-                <h2>Decision history</h2>
+                <h2>Update history</h2>
                 <div className="timeline">
                   {issue.events.length === 0 && (
                     <div className="empty-state">
@@ -199,6 +199,26 @@ export default function IssueDetailPage() {
       </div>
     </AppShell>
   )
+}
+
+function formatTimeStatus(status: string) {
+  const labels: Record<string, string> = {
+    ON_TRACK: 'On time',
+    AT_RISK: 'Due soon',
+    BREACHED: 'Late',
+    RESOLVED: 'Done',
+  }
+  return labels[status] ?? status.replace('_', ' ')
+}
+
+function formatStatus(status: IssueStatus) {
+  const labels: Record<IssueStatus, string> = {
+    OPEN: 'New',
+    IN_PROGRESS: 'Being fixed',
+    REOPENED: 'Needs review',
+    RESOLVED: 'Resolved',
+  }
+  return labels[status]
 }
 
 function EvidenceContext({ complaint }: { complaint: IssueDetail['complaints'][number] }) {

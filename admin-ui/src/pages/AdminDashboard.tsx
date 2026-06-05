@@ -96,15 +96,10 @@ export default function AdminDashboard() {
       ? Math.round((groupedCount / dashboard.complaints_total) * 100)
       : 0
   const commandMode = dashboard?.critical_issues
-    ? 'Escalation review'
+    ? 'Needs review'
     : dashboard && dashboard.total_open > 0
-      ? 'Active queue'
-      : 'Queue clear'
-  const analysisRuntime =
-    dashboard?.ai_runtime === 'Local hybrid intelligence'
-      ? 'Local issue grouping'
-      : dashboard?.ai_runtime ?? 'Local issue grouping'
-
+      ? 'Open problems'
+      : 'All clear'
   return (
     <AppShell>
       <div className="ops-page">
@@ -112,58 +107,58 @@ export default function AdminDashboard() {
           <div className="command-copy">
             <div className="command-kicker">
               <span className="live-dot" aria-hidden="true" />
-              <p className="eyebrow">Hostel operations</p>
+              <p className="eyebrow">Admin dashboard</p>
             </div>
-            <h1>Incident desk for hostel infrastructure</h1>
+            <h1>Hostel problem dashboard</h1>
             <p className="muted hero-copy">
-              A practical workspace for grouped complaints, SLA pressure, hostel-level risk, evidence review, and administrator action.
+              See what needs attention first, where students are affected, and what action should happen next.
             </p>
-            <div className="hero-signal-row" aria-label="Command signals">
+            <div className="hero-signal-row" aria-label="Dashboard highlights">
               <span>
                 <Building2 aria-hidden="true" />
-                Hostel routing
+                Hostel
               </span>
               <span>
                 <Clock3 aria-hidden="true" />
-                SLA pressure
+                Time left
               </span>
               <span>
                 <Gauge aria-hidden="true" />
-                Risk scoring
+                Priority
               </span>
               <span>
                 <ClipboardList aria-hidden="true" />
-                Complaint evidence
+                Student reports
               </span>
             </div>
-            <div className="command-telemetry" aria-label="Operations telemetry">
-              <Telemetry label="Mode" value={commandMode} />
-              <Telemetry label="Avg risk" value={avgRisk} />
-              <Telemetry label="Grouped" value={`${groupedRate}%`} />
-              <Telemetry label="SLA heat" value={breachedCount > 0 ? `${breachedCount} breached` : `${atRiskCount} at risk`} />
+            <div className="command-telemetry" aria-label="Dashboard summary">
+              <Telemetry label="View" value={commandMode} />
+              <Telemetry label="Avg priority" value={avgRisk} />
+              <Telemetry label="Combined" value={`${groupedRate}%`} />
+              <Telemetry label="Time alerts" value={breachedCount > 0 ? `${breachedCount} late` : `${atRiskCount} due soon`} />
             </div>
           </div>
 
-          <aside className="directive-panel" aria-label="Priority action">
+          <aside className="directive-panel" aria-label="Top problem">
             <div className="section-heading compact">
               <div>
-                <p className="eyebrow">Priority action</p>
+                <p className="eyebrow">Needs attention first</p>
                 <h2>{topIssue ? topIssue.title : 'No active issue'}</h2>
               </div>
               {topIssue && <RiskRing value={topIssue.priority_score} />}
             </div>
             <p className="muted">
-              {topIssue ? topIssue.intelligence.recommended_action : 'The queue is clear. New student signals will appear here.'}
+              {topIssue ? topIssue.intelligence.recommended_action : 'Nothing is waiting right now. New student complaints will appear here.'}
             </p>
             <div className="directive-meta">
-              <span>{topHostel ? topHostel[0] : 'No hostel pressure'}</span>
-              <span>{topCategory ? topCategory[0] : 'No category pressure'}</span>
-              <span>{topIssue ? topIssue.intelligence.sla_status.replace('_', ' ') : 'Stable'}</span>
+              <span>{topHostel ? topHostel[0] : 'No active hostel'}</span>
+              <span>{topCategory ? topCategory[0] : 'No active category'}</span>
+              <span>{topIssue ? formatTimeStatus(topIssue.intelligence.sla_status) : 'Stable'}</span>
             </div>
             <div className="hero-actions">
               <span className="runtime-pill">
                 <Gauge aria-hidden="true" />
-                Analysis: {analysisRuntime}
+                Sorted by priority
               </span>
               <button className="secondary-button" type="button" onClick={() => void load()}>
                 <RefreshCw aria-hidden="true" />
@@ -181,10 +176,10 @@ export default function AdminDashboard() {
             <section className="surface queue-panel">
               <div className="section-heading">
                 <div>
-                  <p className="eyebrow">Prioritized issue queue</p>
-                  <h2>Grouped operational issues sorted by risk</h2>
+                  <p className="eyebrow">Problems to handle</p>
+                  <h2>Student complaints sorted by priority</h2>
                   <p className="muted queue-summary">
-                    Showing {filteredIssues.length} of {dashboard.issues.length} issue{dashboard.issues.length === 1 ? '' : 's'}.
+                    Showing {filteredIssues.length} of {dashboard.issues.length} problem{dashboard.issues.length === 1 ? '' : 's'}.
                   </p>
                 </div>
                 <div className="status-tabs" role="tablist" aria-label="Filter issues by status">
@@ -197,7 +192,7 @@ export default function AdminDashboard() {
                       role="tab"
                       type="button"
                     >
-                      {value.replace('_', ' ')}
+                      {formatStatusTab(value)}
                     </button>
                   ))}
                 </div>
@@ -210,7 +205,7 @@ export default function AdminDashboard() {
                     id="issue-search"
                     value={search}
                     onChange={(event) => setSearch(event.target.value)}
-                    placeholder="Search issue, hostel, action, ID..."
+                    placeholder="Search problem, hostel, action, ID..."
                   />
                 </label>
                 <label className="filter-field" htmlFor="hostel-filter">
@@ -240,12 +235,12 @@ export default function AdminDashboard() {
                   </select>
                 </label>
                 <label className="filter-field" htmlFor="sla-filter">
-                  <span>SLA</span>
+                  <span>Time</span>
                   <select id="sla-filter" value={slaFilter} onChange={(event) => setSlaFilter(event.target.value)}>
                     <option value="ALL">All</option>
                     {slaOptions.map((value) => (
                       <option key={value} value={value}>
-                        {value.replace('_', ' ')}
+                        {formatTimeStatus(value)}
                       </option>
                     ))}
                   </select>
@@ -296,51 +291,51 @@ export default function AdminDashboard() {
                     <div className="issue-scoreboard">
                       <RiskRing value={issue.priority_score} />
                       <span className={`sla-chip sla-${issue.intelligence.sla_status.toLowerCase()}`}>
-                        {issue.intelligence.sla_status.replace('_', ' ')}
+                        {formatTimeStatus(issue.intelligence.sla_status)}
                       </span>
-                      <span>{issue.complaint_count} evidence report{issue.complaint_count === 1 ? '' : 's'}</span>
+                      <span>{issue.complaint_count} student report{issue.complaint_count === 1 ? '' : 's'}</span>
                     </div>
                   </Link>
                 ))}
               </div>
             </section>
 
-            <section className="signal-strip" aria-label="Operational signals">
-              <SignalTile icon={<ShieldAlert />} label="Escalation" value={`${dashboard.critical_issues} critical`} tone="red" />
-              <SignalTile icon={<Clock3 />} label="SLA" value={`${breachedCount} breached / ${atRiskCount} at risk`} tone="amber" />
+            <section className="signal-strip" aria-label="Dashboard summary">
+              <SignalTile icon={<ShieldAlert />} label="Needs review" value={`${dashboard.critical_issues} critical`} tone="red" />
+              <SignalTile icon={<Clock3 />} label="Time" value={`${breachedCount} late / ${atRiskCount} due soon`} tone="amber" />
               <SignalTile
                 icon={<MapPin />}
-                label="Pressure zone"
+                label="Most active hostel"
                 value={topHostel ? `${topHostel[0]} (${topHostel[1]})` : 'None'}
                 tone="blue"
               />
               <SignalTile
                 icon={<ClipboardList />}
-                label="Evidence density"
-                value={`${dashboard.complaints_total} reports / ${dashboard.issues.length} issues`}
+                label="Student reports"
+                value={`${dashboard.complaints_total} reports / ${dashboard.issues.length} problems`}
                 tone="green"
               />
             </section>
 
             <section className="metric-grid premium">
-              <Metric icon={<Activity />} label="Open" value={dashboard.total_open} tone="blue" caption="Active operational issues" />
-              <Metric icon={<ShieldAlert />} label="Critical" value={dashboard.critical_issues} tone="red" caption="Needs escalation" />
+              <Metric icon={<Activity />} label="Open" value={dashboard.total_open} tone="blue" caption="Problems waiting" />
+              <Metric icon={<ShieldAlert />} label="Critical" value={dashboard.critical_issues} tone="red" caption="Needs urgent review" />
               <Metric icon={<Users />} label="Complaints" value={dashboard.complaints_total} tone="green" caption="Real student reports" />
               <Metric
                 icon={<Layers3 />}
-                label="Grouped"
+                label="Combined"
                 value={groupedCount}
                 tone="amber"
-                caption="Reports merged into issues"
+                caption="Reports joined together"
               />
             </section>
 
             <section className="insight-grid">
               <div className="surface">
                 <div className="section-heading compact">
-                  <h2>SLA pressure</h2>
+                  <h2>Time status</h2>
                 </div>
-                <Breakdown data={dashboard.sla_breakdown} />
+                <Breakdown data={dashboard.sla_breakdown} labelFormatter={formatTimeStatus} />
               </div>
               <div className="surface">
                 <div className="section-heading compact">
@@ -350,7 +345,7 @@ export default function AdminDashboard() {
               </div>
               <div className="surface spotlight">
                 <div className="section-heading compact">
-                  <h2>Top recommended action</h2>
+                  <h2>Suggested next step</h2>
                   <AlertTriangle aria-hidden="true" />
                 </div>
                 {topIssue ? (
@@ -362,7 +357,7 @@ export default function AdminDashboard() {
                     </Link>
                   </>
                 ) : (
-                  <p className="muted">No issues in queue.</p>
+                  <p className="muted">No problems waiting.</p>
                 )}
               </div>
               <div className="surface hostel-pulse">
@@ -440,7 +435,15 @@ function Metric({
   )
 }
 
-function Breakdown({ data, compact = false }: { data: Record<string, number>; compact?: boolean }) {
+function Breakdown({
+  data,
+  compact = false,
+  labelFormatter,
+}: {
+  data: Record<string, number>
+  compact?: boolean
+  labelFormatter?: (label: string) => string
+}) {
   const entries = Object.entries(data).sort((a, b) => b[1] - a[1])
   const max = Math.max(...entries.map(([, value]) => value), 1)
   if (entries.length === 0) {
@@ -450,7 +453,7 @@ function Breakdown({ data, compact = false }: { data: Record<string, number>; co
     <div className={compact ? 'breakdown compact-breakdown' : 'breakdown'}>
       {entries.map(([label, value]) => (
         <div className="breakdown-row" key={label}>
-          <span>{label.replace('_', ' ')}</span>
+          <span>{labelFormatter ? labelFormatter(label) : label.replace('_', ' ')}</span>
           <div className="bar-track">
             <div className="bar-fill" style={{ width: `${(value / max) * 100}%` }} />
           </div>
@@ -489,4 +492,25 @@ function DashboardSkeleton() {
 
 function topBreakdownEntry(data: Record<string, number>) {
   return Object.entries(data).sort((a, b) => b[1] - a[1])[0] ?? null
+}
+
+function formatStatusTab(status: IssueStatus | 'ALL') {
+  const labels: Record<IssueStatus | 'ALL', string> = {
+    ALL: 'All',
+    OPEN: 'New',
+    IN_PROGRESS: 'Being fixed',
+    REOPENED: 'Needs review',
+    RESOLVED: 'Resolved',
+  }
+  return labels[status]
+}
+
+function formatTimeStatus(status: string) {
+  const labels: Record<string, string> = {
+    ON_TRACK: 'On time',
+    AT_RISK: 'Due soon',
+    BREACHED: 'Late',
+    RESOLVED: 'Done',
+  }
+  return labels[status] ?? status.replace('_', ' ')
 }

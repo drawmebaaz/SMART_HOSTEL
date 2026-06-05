@@ -80,19 +80,19 @@ export default function StudentPortal() {
       <div className="student-page">
         <section className="student-hero">
           <div>
-            <p className="eyebrow">Student portal</p>
-            <h1>Report hostel issues without friction</h1>
+            <p className="eyebrow">Student help desk</p>
+            <h1>Report a hostel problem</h1>
             <p className="muted hero-copy">
-              Write in English or Hinglish. Your complaint is recorded, classified, and attached to the right hostel issue for administrator review.
+              Write in English or Hinglish. Your complaint is saved and sent to the right hostel staff for review.
             </p>
             <div className="hero-signal-row">
               <span>
                 <LockKeyhole aria-hidden="true" />
-                Private intake
+                Private
               </span>
               <span>
                 <ClipboardCheck aria-hidden="true" />
-                Trackable record
+                Track status
               </span>
             </div>
           </div>
@@ -103,7 +103,7 @@ export default function StudentPortal() {
             </span>
             <span>
               <ShieldCheck aria-hidden="true" />
-              Admin reviewed
+              Staff reviewed
             </span>
             <span>
               <CheckCircle2 aria-hidden="true" />
@@ -116,8 +116,8 @@ export default function StudentPortal() {
           <div className="surface wide submit-panel">
             <div className="section-heading">
               <div>
-                <p className="eyebrow">New grievance</p>
-                <h2>Submit a grievance</h2>
+                <p className="eyebrow">New complaint</p>
+                <h2>Tell us what happened</h2>
               </div>
               <span className={`counter ${characterTone}`}>{text.length}/2000</span>
             </div>
@@ -197,20 +197,20 @@ export default function StudentPortal() {
               {error && <p className="form-error">{error}</p>}
               <button className="primary-button" type="submit" disabled={isSubmitting}>
                 <Send aria-hidden="true" />
-                {isSubmitting ? 'Submitting...' : 'Submit grievance'}
+                {isSubmitting ? 'Submitting...' : 'Submit complaint'}
               </button>
             </form>
           </div>
 
           <aside className="surface ai-receipt">
             <div className="section-heading compact">
-              <h2>Submission receipt</h2>
+              <h2>Complaint details</h2>
               <ClipboardCheck aria-hidden="true" />
             </div>
             {!lastSubmission && (
               <div className="receipt-placeholder">
                 <FileText aria-hidden="true" />
-                <p>Submit a complaint to see category, urgency, language detection, and linked issue details.</p>
+                <p>Submit a complaint to see what we understood and where it was sent.</p>
               </div>
             )}
             {lastSubmission && (
@@ -232,7 +232,7 @@ export default function StudentPortal() {
 
         <section className="surface history-panel">
           <div className="section-heading compact">
-            <h2>Your recent signals</h2>
+            <h2>Your recent complaints</h2>
             <FileText aria-hidden="true" />
           </div>
           <div className="student-history">
@@ -260,7 +260,7 @@ export default function StudentPortal() {
                 <div className="history-meta">
                   <span>{complaint.hostel}</span>
                   <span>{complaint.urgency}</span>
-                  {complaint.issue_sla_status && <span>{complaint.issue_sla_status.replace('_', ' ')}</span>}
+                  {complaint.issue_sla_status && <span>{formatTimeStatus(complaint.issue_sla_status)}</span>}
                   <small>{formatDateTime(complaint.created_at)}</small>
                 </div>
               </article>
@@ -296,6 +296,16 @@ function EvidenceContext({ complaint }: { complaint: Complaint }) {
       {contact !== null && <span>{contact ? 'Contact allowed' : 'No contact needed'}</span>}
     </div>
   )
+}
+
+function formatTimeStatus(status: string) {
+  const labels: Record<string, string> = {
+    ON_TRACK: 'On time',
+    AT_RISK: 'Due soon',
+    BREACHED: 'Late',
+    RESOLVED: 'Done',
+  }
+  return labels[status] ?? status.replace('_', ' ')
 }
 
 function HistorySkeleton() {
