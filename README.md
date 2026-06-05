@@ -244,27 +244,6 @@ npm run lint
 npm run build
 ```
 
-## Resume Version
-
-Use this as the project entry on your resume:
-
-**Smart Hostel Grievance Management System**  
-React, TypeScript, FastAPI, Python, SQLAlchemy, Alembic, PostgreSQL, Tailwind CSS
-
-- Built and deployed a full-stack hostel complaint platform with 2 role-based portals, 14 REST API endpoints, 5 core database tables, and secure HTTP-only cookie authentication.
-- Designed a student complaint flow supporting English/Hinglish input, 10 hostel choices, exact location, impact scope, contact permission, and complaint history tracking.
-- Developed an admin dashboard that combines similar student complaints into shared hostel problems and sorts them by priority so staff can focus on the most urgent issues first.
-- Added 5 admin discovery controls: keyword search, hostel filter, category filter, status filter, and time-status filter for faster issue review.
-- Implemented issue detail pages with linked student reports, 4 status stages, admin notes, quick update templates, and complete update history.
-- Structured the backend into 4 API route groups with separate service, repository, schema, database model, security, and configuration layers.
-- Added production readiness through Alembic migrations, environment-based settings, Docker/Render deployment files, Neon PostgreSQL support, linting, and 9 automated tests.
-
-Short resume summary:
-
-```text
-Smart Hostel Grievance is a deployed full-stack complaint management platform that lets students report hostel problems and helps admins prioritize, group, track, and resolve them through a production-ready React + FastAPI dashboard.
-```
-
 ## Notes
 
 - Keep `.env` private.
