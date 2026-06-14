@@ -6,6 +6,16 @@ Live demo: [https://smart-hostel-grievance.onrender.com](https://smart-hostel-gr
 
 Render free-tier apps may take a short time to wake up after inactivity.
 
+## Screenshots
+
+### Admin Dashboard
+
+![Admin dashboard showing hostel problems, filters, priority sorting, and student reports](docs/images/admin-dashboard.png)
+
+### Student Complaint Flow
+
+![Student complaint screen showing complaint context, receipt, and recent complaint history](docs/images/student-complaint-flow.png)
+
 ## Demo Accounts
 
 ```text
