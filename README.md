@@ -73,6 +73,12 @@ Admins can:
 4. Admin opens a problem to review all related student reports.
 5. Admin updates status and adds a short note.
 
+## Development Blog
+
+Read the build story, problems faced, errors encountered, and fixes here:
+
+[Building Smart Hostel Grievance: Problems Faced And How I Solved Them](docs/development-blog.md)
+
 ## Tech Stack
 
 Backend:
