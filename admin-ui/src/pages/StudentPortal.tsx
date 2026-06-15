@@ -10,9 +10,11 @@ import { formatDateTime } from '../utils/time'
 const HOSTELS = ['BH-1', 'BH-2', 'BH-3', 'BH-4', 'BH-5', 'GH-1', 'GH-2', 'GH-3', 'New Hostel', 'Old Hostel']
 const IMPACT_OPTIONS = ['Only my room', 'Same floor', 'Whole wing', 'Common area', 'Multiple students']
 const EXAMPLES = [
-  'Paani nahi aa raha in BH-3 washroom since morning',
-  'Electric spark near the second floor switchboard',
-  'WiFi keeps disconnecting during online classes',
+  'Water is not coming in my wing',
+  'Bathroom cleaning has not happened',
+  'Fan is not working',
+  'Mess food issue',
+  'Wi-Fi problem near my room',
 ]
 
 export default function StudentPortal() {
@@ -81,9 +83,10 @@ export default function StudentPortal() {
         <section className="student-hero">
           <div>
             <p className="eyebrow">Student help desk</p>
-            <h1>Report a hostel problem</h1>
+            <h1>Tell us what&apos;s wrong in your hostel.</h1>
             <p className="muted hero-copy">
-              Write in English or Hinglish. Your complaint is saved and sent to the right hostel staff for review.
+              Report water, electricity, hygiene, food, room, or maintenance issues. Similar reports are grouped so
+              staff can fix repeated problems faster.
             </p>
             <div className="hero-signal-row">
               <span>
@@ -117,35 +120,27 @@ export default function StudentPortal() {
             <div className="section-heading">
               <div>
                 <p className="eyebrow">New complaint</p>
-                <h2>Tell us what happened</h2>
+                <h2>Guided report</h2>
               </div>
               <span className={`counter ${characterTone}`}>{text.length}/2000</span>
             </div>
             <form onSubmit={submit} className="form-stack">
-              <label htmlFor="hostel-select">
-                Hostel
-                <select id="hostel-select" value={hostel} onChange={(event) => setHostel(event.target.value)}>
-                  {HOSTELS.map((value) => (
-                    <option key={value} value={value}>
-                      {value}
-                    </option>
-                  ))}
-                </select>
-              </label>
-              <label htmlFor="complaint-text">
-                Complaint
-                <textarea
-                  id="complaint-text"
-                  value={text}
-                  onChange={(event) => setText(event.target.value)}
-                  minLength={5}
-                  maxLength={2000}
-                  rows={8}
-                  placeholder="Example: Paani nahi aa raha in BH-3 washroom since morning"
-                  required
-                />
-              </label>
-              <div className="context-grid">
+              <section className="report-section">
+                <div>
+                  <span className="step-number">1</span>
+                  <h3>Where is the problem?</h3>
+                  <p className="muted">Choose the hostel and add a specific place if you can.</p>
+                </div>
+                <label htmlFor="hostel-select">
+                  Hostel
+                  <select id="hostel-select" value={hostel} onChange={(event) => setHostel(event.target.value)}>
+                    {HOSTELS.map((value) => (
+                      <option key={value} value={value}>
+                        {value}
+                      </option>
+                    ))}
+                  </select>
+                </label>
                 <label htmlFor="location-detail">
                   Exact location <small>Optional</small>
                   <input
@@ -158,8 +153,45 @@ export default function StudentPortal() {
                     placeholder="Room 214, 2nd floor washroom, mess counter..."
                   />
                 </label>
+              </section>
+
+              <section className="report-section">
+                <div>
+                  <span className="step-number">2</span>
+                  <h3>What happened?</h3>
+                  <p className="muted">Write naturally in English or Hinglish. A short clear report is enough.</p>
+                </div>
+                <label htmlFor="complaint-text">
+                  What is the problem?
+                  <textarea
+                    id="complaint-text"
+                    value={text}
+                    onChange={(event) => setText(event.target.value)}
+                    minLength={5}
+                    maxLength={2000}
+                    rows={8}
+                    placeholder="Example: Paani nahi aa raha in BH-3 washroom since morning"
+                    required
+                  />
+                </label>
+                <div className="example-row">
+                  {EXAMPLES.map((example) => (
+                    <button key={example} type="button" onClick={() => setText(example)}>
+                      <MessageSquareText aria-hidden="true" />
+                      {example}
+                    </button>
+                  ))}
+                </div>
+              </section>
+
+              <section className="report-section">
+                <div>
+                  <span className="step-number">3</span>
+                  <h3>Who is affected?</h3>
+                  <p className="muted">This helps staff understand how widely the problem is spreading.</p>
+                </div>
                 <label htmlFor="impact-scope">
-                  Impact
+                  Who is affected?
                   <select
                     id="impact-scope"
                     value={context.impact}
@@ -174,30 +206,29 @@ export default function StudentPortal() {
                     ))}
                   </select>
                 </label>
-              </div>
-              <label className="checkbox-row" htmlFor="contact-permission">
-                <input
-                  id="contact-permission"
-                  type="checkbox"
-                  checked={context.contactPermission}
-                  onChange={(event) =>
-                    setContext((current) => ({ ...current, contactPermission: event.target.checked }))
-                  }
-                />
-                <span>Allow hostel staff to contact me if they need clarification.</span>
-              </label>
-              <div className="example-row">
-                {EXAMPLES.map((example) => (
-                  <button key={example} type="button" onClick={() => setText(example)}>
-                    <MessageSquareText aria-hidden="true" />
-                    {example}
-                  </button>
-                ))}
-              </div>
+              </section>
+
+              <section className="report-section compact-report-section">
+                <div>
+                  <span className="step-number">4</span>
+                  <h3>Can staff contact you?</h3>
+                </div>
+                <label className="checkbox-row" htmlFor="contact-permission">
+                  <input
+                    id="contact-permission"
+                    type="checkbox"
+                    checked={context.contactPermission}
+                    onChange={(event) =>
+                      setContext((current) => ({ ...current, contactPermission: event.target.checked }))
+                    }
+                  />
+                  <span>Allow hostel staff to contact me if they need clarification.</span>
+                </label>
+              </section>
               {error && <p className="form-error">{error}</p>}
               <button className="primary-button" type="submit" disabled={isSubmitting}>
                 <Send aria-hidden="true" />
-                {isSubmitting ? 'Submitting...' : 'Submit complaint'}
+                {isSubmitting ? 'Submitting...' : 'Submit report'}
               </button>
             </form>
           </div>
@@ -210,20 +241,37 @@ export default function StudentPortal() {
             {!lastSubmission && (
               <div className="receipt-placeholder">
                 <FileText aria-hidden="true" />
-                <p>Submit a complaint to see what we understood and where it was sent.</p>
+                <p>No report submitted yet. After submission, you will see the reference number and what happens next.</p>
               </div>
             )}
             {lastSubmission && (
               <div className="receipt-stack">
+                <div className="result-panel received-panel">
+                  <strong>Report received</strong>
+                  <span>
+                    Your report has been received. Similar reports may be grouped so hostel staff can fix the root
+                    problem faster.
+                  </span>
+                </div>
                 <ReceiptItem label="Reference" value={`CMP-${lastSubmission.complaint.id.slice(0, 8)}`} />
+                <ReceiptItem label="Hostel" value={lastSubmission.complaint.hostel} />
+                <ReceiptItem
+                  label="Location"
+                  value={metadataText(lastSubmission.complaint.metadata.location_detail, 'Not provided')}
+                />
                 <ReceiptItem label="Category" value={lastSubmission.classification.category} />
-                <ReceiptItem label="Urgency" value={lastSubmission.classification.urgency} />
-                <ReceiptItem label="Language" value={lastSubmission.classification.language} />
                 <div className="result-panel">
                   <strong>{lastSubmission.issue.title}</strong>
                   <code>ISS-{lastSubmission.issue.id.slice(0, 8)}</code>
                   <StatusBadge status={lastSubmission.issue.status} />
                   <span>{lastSubmission.issue.intelligence.recommended_action}</span>
+                </div>
+                <div className="result-panel next-step-panel">
+                  <strong>What happens next?</strong>
+                  <span>
+                    Hostel staff can review this report with similar complaints and update the status when work starts
+                    or finishes.
+                  </span>
                 </div>
               </div>
             )}
@@ -240,7 +288,7 @@ export default function StudentPortal() {
             {!isLoading && complaints.length === 0 && (
               <div className="empty-state">
                 <FileText aria-hidden="true" />
-                <p>No complaints submitted yet.</p>
+                <p>No complaints yet. When you report an issue, it will appear here.</p>
               </div>
             )}
             {complaints.map((complaint) => (
@@ -296,6 +344,10 @@ function EvidenceContext({ complaint }: { complaint: Complaint }) {
       {contact !== null && <span>{contact ? 'Contact allowed' : 'No contact needed'}</span>}
     </div>
   )
+}
+
+function metadataText(value: unknown, fallback: string) {
+  return typeof value === 'string' && value.trim() ? value : fallback
 }
 
 function formatTimeStatus(status: string) {

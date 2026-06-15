@@ -32,6 +32,7 @@ export default function AdminDashboard() {
   const [hostelFilter, setHostelFilter] = useState('ALL')
   const [categoryFilter, setCategoryFilter] = useState('ALL')
   const [slaFilter, setSlaFilter] = useState('ALL')
+  const [priorityFilter, setPriorityFilter] = useState('ALL')
   const [error, setError] = useState('')
   const [isLoading, setIsLoading] = useState(true)
 
@@ -59,6 +60,11 @@ export default function AdminDashboard() {
       const matchesHostel = hostelFilter === 'ALL' || issue.hostel === hostelFilter
       const matchesCategory = categoryFilter === 'ALL' || issue.category === categoryFilter
       const matchesSla = slaFilter === 'ALL' || issue.intelligence.sla_status === slaFilter
+      const matchesPriority =
+        priorityFilter === 'ALL' ||
+        (priorityFilter === 'HIGH' && issue.priority_score >= 70) ||
+        (priorityFilter === 'MEDIUM' && issue.priority_score >= 40 && issue.priority_score < 70) ||
+        (priorityFilter === 'LOW' && issue.priority_score < 40)
       const matchesSearch =
         !searchTerm ||
         [
@@ -73,9 +79,9 @@ export default function AdminDashboard() {
           .join(' ')
           .toLowerCase()
           .includes(searchTerm)
-      return matchesStatus && matchesHostel && matchesCategory && matchesSla && matchesSearch
+      return matchesStatus && matchesHostel && matchesCategory && matchesSla && matchesPriority && matchesSearch
     })
-  }, [categoryFilter, dashboard, hostelFilter, search, slaFilter, status])
+  }, [categoryFilter, dashboard, hostelFilter, priorityFilter, search, slaFilter, status])
 
   const hostelOptions = useMemo(() => Object.keys(dashboard?.hostel_breakdown ?? {}).sort(), [dashboard])
   const categoryOptions = useMemo(() => Object.keys(dashboard?.category_breakdown ?? {}).sort(), [dashboard])
@@ -173,10 +179,28 @@ export default function AdminDashboard() {
 
         {dashboard && (
           <>
+            <section className="signal-strip" aria-label="Dashboard summary">
+              <SignalTile icon={<ShieldAlert />} label="Needs attention" value={`${dashboard.critical_issues} critical`} tone="red" />
+              <SignalTile icon={<Clock3 />} label="Late problems" value={`${breachedCount} late`} tone="amber" />
+              <SignalTile icon={<Clock3 />} label="Due soon" value={`${atRiskCount} due soon`} tone="blue" />
+              <SignalTile
+                icon={<MapPin />}
+                label="Most affected hostel"
+                value={topHostel ? `${topHostel[0]} (${topHostel[1]})` : 'None'}
+                tone="green"
+              />
+              <SignalTile
+                icon={<ClipboardList />}
+                label="Student reports"
+                value={`${dashboard.complaints_total} reports`}
+                tone="blue"
+              />
+            </section>
+
             <section className="surface queue-panel">
               <div className="section-heading">
                 <div>
-                  <p className="eyebrow">Problems to handle</p>
+                  <p className="eyebrow">Problems to handle today</p>
                   <h2>Student complaints sorted by priority</h2>
                   <p className="muted queue-summary">
                     Showing {filteredIssues.length} of {dashboard.issues.length} problem{dashboard.issues.length === 1 ? '' : 's'}.
@@ -245,6 +269,19 @@ export default function AdminDashboard() {
                     ))}
                   </select>
                 </label>
+                <label className="filter-field" htmlFor="priority-filter">
+                  <span>Priority</span>
+                  <select
+                    id="priority-filter"
+                    value={priorityFilter}
+                    onChange={(event) => setPriorityFilter(event.target.value)}
+                  >
+                    <option value="ALL">All</option>
+                    <option value="HIGH">High</option>
+                    <option value="MEDIUM">Medium</option>
+                    <option value="LOW">Low</option>
+                  </select>
+                </label>
                 <button
                   className="secondary-button reset-filters"
                   type="button"
@@ -253,6 +290,7 @@ export default function AdminDashboard() {
                     setHostelFilter('ALL')
                     setCategoryFilter('ALL')
                     setSlaFilter('ALL')
+                    setPriorityFilter('ALL')
                     setStatus('ALL')
                   }}
                 >
@@ -298,23 +336,6 @@ export default function AdminDashboard() {
                   </Link>
                 ))}
               </div>
-            </section>
-
-            <section className="signal-strip" aria-label="Dashboard summary">
-              <SignalTile icon={<ShieldAlert />} label="Needs review" value={`${dashboard.critical_issues} critical`} tone="red" />
-              <SignalTile icon={<Clock3 />} label="Time" value={`${breachedCount} late / ${atRiskCount} due soon`} tone="amber" />
-              <SignalTile
-                icon={<MapPin />}
-                label="Most active hostel"
-                value={topHostel ? `${topHostel[0]} (${topHostel[1]})` : 'None'}
-                tone="blue"
-              />
-              <SignalTile
-                icon={<ClipboardList />}
-                label="Student reports"
-                value={`${dashboard.complaints_total} reports / ${dashboard.issues.length} problems`}
-                tone="green"
-              />
             </section>
 
             <section className="metric-grid premium">

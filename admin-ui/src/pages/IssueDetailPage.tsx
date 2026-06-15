@@ -11,10 +11,12 @@ import { formatDateTime } from '../utils/time'
 
 const STATUSES: IssueStatus[] = ['OPEN', 'IN_PROGRESS', 'REOPENED', 'RESOLVED']
 const NOTE_TEMPLATES = [
-  'Maintenance owner assigned.',
-  'Warden informed and student update sent.',
-  'Inspection scheduled for today.',
-  'Resolved after verification.',
+  'Maintenance team assigned.',
+  'Issue verified by staff.',
+  'Work in progress.',
+  'Waiting for external vendor.',
+  'Resolved after inspection.',
+  'Needs student confirmation.',
 ]
 
 export default function IssueDetailPage() {
@@ -97,6 +99,7 @@ export default function IssueDetailPage() {
                 value={formatSlaValue(issue.intelligence.minutes_remaining)}
                 caption={issue.intelligence.minutes_remaining < 0 ? 'Overdue' : 'Remaining'}
               />
+              <Metric icon={<FileText />} label="Reports" value={issue.complaint_count} caption="Linked student complaints" />
               <Metric icon={<ShieldAlert />} label="Condition" value={issue.intelligence.health_score} caption="How serious it looks" />
             </section>
 
@@ -121,13 +124,11 @@ export default function IssueDetailPage() {
                         <code>CMP-{complaint.id.slice(0, 8)}</code>
                         <EvidenceContext complaint={complaint} />
                         <small>
-                          {complaint.student_name ?? 'Student'} / {complaint.language} /{' '}
-                          {complaint.embedding_status.replace('_', ' ')} /{' '}
-                          {formatDateTime(complaint.created_at)}
+                          {complaint.student_name ?? 'Student'} / {complaint.language} / {formatDateTime(complaint.created_at)}
                         </small>
                       </div>
                       <span>
-                        {complaint.similarity_score ? `${Math.round(complaint.similarity_score * 100)}% match` : 'New signal'}
+                        {complaint.similarity_score ? 'Grouped report' : 'First report'}
                       </span>
                     </article>
                   ))}
@@ -183,8 +184,8 @@ export default function IssueDetailPage() {
                       <strong>{event.event_type.replace('_', ' ')}</strong>
                       {(event.to_status || event.from_status) && (
                         <span>
-                          {event.from_status ? `${event.from_status.replace('_', ' ')} to ` : ''}
-                          {event.to_status?.replace('_', ' ')}
+                          {event.from_status ? `${formatEventStatus(event.from_status)} to ` : ''}
+                          {event.to_status ? formatEventStatus(event.to_status) : ''}
                         </span>
                       )}
                       {event.notes && <p>{event.notes}</p>}
@@ -219,6 +220,16 @@ function formatStatus(status: IssueStatus) {
     RESOLVED: 'Resolved',
   }
   return labels[status]
+}
+
+function formatEventStatus(status: string) {
+  const labels: Record<string, string> = {
+    OPEN: 'New',
+    IN_PROGRESS: 'Being fixed',
+    REOPENED: 'Needs review',
+    RESOLVED: 'Resolved',
+  }
+  return labels[status] ?? status.replace('_', ' ')
 }
 
 function EvidenceContext({ complaint }: { complaint: IssueDetail['complaints'][number] }) {

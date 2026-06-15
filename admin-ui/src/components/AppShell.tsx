@@ -22,12 +22,12 @@ export function AppShell({ children }: { children: React.ReactNode }) {
             </span>
             <span>
               <strong>Smart Hostel</strong>
-              <small>Help Desk</small>
+              <small>{user?.role === 'ADMIN' ? 'Ops Desk' : 'Support Desk'}</small>
             </span>
           </Link>
           <nav className="nav" aria-label="Primary navigation">
-            {user?.role === 'STUDENT' && <NavLink to="/student">My complaints</NavLink>}
-            {user?.role === 'ADMIN' && <NavLink to="/admin">Admin dashboard</NavLink>}
+            {user?.role === 'STUDENT' && <NavLink to="/student">Report issue</NavLink>}
+            {user?.role === 'ADMIN' && <NavLink to="/admin">Today</NavLink>}
           </nav>
           <div className="topbar-status" aria-label="System status">
             <Activity aria-hidden="true" />
