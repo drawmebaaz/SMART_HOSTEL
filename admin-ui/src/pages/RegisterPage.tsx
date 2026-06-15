@@ -28,26 +28,33 @@ export default function RegisterPage() {
   return (
     <main className="auth-page">
       <section className="auth-layout compact-auth" aria-label="Student registration">
-        <div className="auth-intel-panel">
-          <p className="eyebrow">Student account</p>
-          <h1>Report hostel problems clearly</h1>
-          <p className="muted">
-            Create an account to send complaints, check your past reports, and help hostel staff fix repeated problems faster.
-          </p>
-          <div className="auth-signal-grid" aria-label="Student account capabilities">
-            <span>
-              <ClipboardCheck aria-hidden="true" />
-              Recorded
-            </span>
-            <span>
-              <KeyRound aria-hidden="true" />
-              Private
-            </span>
-            <span>
-              <CheckCircle2 aria-hidden="true" />
-              Trackable
-            </span>
+        <div className="auth-intel-panel auth-minimal-panel">
+          <div className="auth-brand-block">
+
+            <div>
+              <p className="eyebrow">Student account</p>
+              <h1>Create your hostel help desk account</h1>
+              <p className="muted">
+                Submit hostel complaints, keep a record of your reports, and track when the issue moves forward.
+              </p>
+            </div>
           </div>
+
+          <div className="auth-minimal-list">
+            <div>
+              <ClipboardCheck aria-hidden="true" />
+              <span>Your complaints are saved with hostel and location details.</span>
+            </div>
+
+            <div>
+              <CheckCircle2 aria-hidden="true" />
+              <span>Track whether your reported issue is new, in progress, or resolved.</span>
+            </div>
+          </div>
+
+          <p className="auth-note">
+            Student accounts only. Admin access is managed separately.
+          </p>
         </div>
 
         <div className="auth-panel">
@@ -56,53 +63,53 @@ export default function RegisterPage() {
             <h2>Create account</h2>
             <p className="muted">Admin accounts are provisioned separately for hostel staff.</p>
           </div>
-        <form onSubmit={submit} className="form-stack">
-          <label htmlFor="register-name">
-            Full name
-            <input
-              id="register-name"
-              value={form.name}
-              onChange={(event) => setForm((current) => ({ ...current, name: event.target.value }))}
-              autoComplete="name"
-              required
-            />
-          </label>
-          <label htmlFor="register-email">
-            Email
-            <input
-              id="register-email"
-              value={form.email}
-              onChange={(event) => setForm((current) => ({ ...current, email: event.target.value }))}
-              type="email"
-              autoComplete="email"
-              required
-            />
-          </label>
-          <label htmlFor="register-password">
-            Password
-            <input
-              id="register-password"
-              value={form.password}
-              onChange={(event) => setForm((current) => ({ ...current, password: event.target.value }))}
-              minLength={8}
-              type="password"
-              autoComplete="new-password"
-              required
-            />
-          </label>
-          {error && <p className="form-error">{error}</p>}
-          <button className="primary-button" type="submit" disabled={isSubmitting}>
-            <UserPlus aria-hidden="true" />
-            {isSubmitting ? 'Creating...' : 'Create account'}
-          </button>
-        </form>
-        <p className="muted auth-switch">
-          Already registered?{' '}
-          <Link to="/login">
-            Sign in
-            <ArrowRight aria-hidden="true" />
-          </Link>
-        </p>
+          <form onSubmit={submit} className="form-stack">
+            <label htmlFor="register-name">
+              Full name
+              <input
+                id="register-name"
+                value={form.name}
+                onChange={(event) => setForm((current) => ({ ...current, name: event.target.value }))}
+                autoComplete="name"
+                required
+              />
+            </label>
+            <label htmlFor="register-email">
+              Email
+              <input
+                id="register-email"
+                value={form.email}
+                onChange={(event) => setForm((current) => ({ ...current, email: event.target.value }))}
+                type="email"
+                autoComplete="email"
+                required
+              />
+            </label>
+            <label htmlFor="register-password">
+              Password
+              <input
+                id="register-password"
+                value={form.password}
+                onChange={(event) => setForm((current) => ({ ...current, password: event.target.value }))}
+                minLength={8}
+                type="password"
+                autoComplete="new-password"
+                required
+              />
+            </label>
+            {error && <p className="form-error">{error}</p>}
+            <button className="primary-button" type="submit" disabled={isSubmitting}>
+              <UserPlus aria-hidden="true" />
+              {isSubmitting ? 'Creating...' : 'Create account'}
+            </button>
+          </form>
+          <p className="muted auth-switch">
+            Already registered?{' '}
+            <Link to="/login">
+              Sign in
+              <ArrowRight aria-hidden="true" />
+            </Link>
+          </p>
         </div>
       </section>
     </main>

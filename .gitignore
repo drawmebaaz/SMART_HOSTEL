@@ -9,6 +9,8 @@ env/
 .env
 .venv
 
+open.txt
+
 # JavaScript
 node_modules/
 admin-ui/node_modules/

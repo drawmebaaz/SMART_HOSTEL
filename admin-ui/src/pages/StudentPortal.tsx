@@ -1,8 +1,7 @@
 import { FormEvent, useEffect, useMemo, useState } from 'react'
-import { CheckCircle2, ClipboardCheck, FileText, Languages, LockKeyhole, MessageSquareText, Send, ShieldCheck } from 'lucide-react'
-
+import { ClipboardCheck, FileText, MessageSquareText, Send } from 'lucide-react'
 import { api } from '../api/client'
-import type { Complaint, ComplaintSubmissionResponse } from '../api/types'
+import type { Complaint } from '../api/types'
 import { AppShell } from '../components/AppShell'
 import { StatusBadge } from '../components/StatusBadge'
 import { formatDateTime } from '../utils/time'
@@ -26,7 +25,6 @@ export default function StudentPortal() {
     contactPermission: true,
   })
   const [complaints, setComplaints] = useState<Complaint[]>([])
-  const [lastSubmission, setLastSubmission] = useState<ComplaintSubmissionResponse | null>(null)
   const [error, setError] = useState('')
   const [isLoading, setIsLoading] = useState(true)
   const [isSubmitting, setIsSubmitting] = useState(false)
@@ -50,7 +48,7 @@ export default function StudentPortal() {
     setIsSubmitting(true)
     setError('')
     try {
-      const result = await api.submitComplaint({
+      await api.submitComplaint({
         text,
         hostel,
         metadata: {
@@ -60,7 +58,7 @@ export default function StudentPortal() {
           contact_permission: context.contactPermission,
         },
       })
-      setLastSubmission(result)
+
       setText('')
       setContext((current) => ({ ...current, location: '' }))
       await loadComplaints()
@@ -77,44 +75,17 @@ export default function StudentPortal() {
     return ''
   }, [text.length])
 
+  const sortedComplaints = useMemo(
+    () =>
+      [...complaints].sort(
+        (a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime(),
+      ),
+    [complaints],
+  )
+
   return (
     <AppShell>
       <div className="student-page">
-        <section className="student-hero">
-          <div>
-            <p className="eyebrow">Student help desk</p>
-            <h1>Tell us what&apos;s wrong in your hostel.</h1>
-            <p className="muted hero-copy">
-              Report water, electricity, hygiene, food, room, or maintenance issues. Similar reports are grouped so
-              staff can fix repeated problems faster.
-            </p>
-            <div className="hero-signal-row">
-              <span>
-                <LockKeyhole aria-hidden="true" />
-                Private
-              </span>
-              <span>
-                <ClipboardCheck aria-hidden="true" />
-                Track status
-              </span>
-            </div>
-          </div>
-          <div className="trust-strip">
-            <span>
-              <Languages aria-hidden="true" />
-              English + Hinglish
-            </span>
-            <span>
-              <ShieldCheck aria-hidden="true" />
-              Staff reviewed
-            </span>
-            <span>
-              <CheckCircle2 aria-hidden="true" />
-              Issue linked
-            </span>
-          </div>
-        </section>
-
         <section className="workspace-grid">
           <div className="surface wide submit-panel">
             <div className="section-heading">
@@ -233,131 +204,63 @@ export default function StudentPortal() {
             </form>
           </div>
 
-          <aside className="surface ai-receipt">
+          <aside className="surface ai-receipt complaint-details-panel">
             <div className="section-heading compact">
-              <h2>Complaint details</h2>
+              <div>
+                <h2>Complaint details</h2>
+                <p className="muted">{sortedComplaints.length} submitted complaint{sortedComplaints.length === 1 ? '' : 's'}</p>
+              </div>
               <ClipboardCheck aria-hidden="true" />
             </div>
-            {!lastSubmission && (
-              <div className="receipt-placeholder">
-                <FileText aria-hidden="true" />
-                <p>No report submitted yet. After submission, you will see the reference number and what happens next.</p>
-              </div>
-            )}
-            {lastSubmission && (
-              <div className="receipt-stack">
-                <div className="result-panel received-panel">
-                  <strong>Report received</strong>
-                  <span>
-                    Your report has been received. Similar reports may be grouped so hostel staff can fix the root
-                    problem faster.
-                  </span>
-                </div>
-                <ReceiptItem label="Reference" value={`CMP-${lastSubmission.complaint.id.slice(0, 8)}`} />
-                <ReceiptItem label="Hostel" value={lastSubmission.complaint.hostel} />
-                <ReceiptItem
-                  label="Location"
-                  value={metadataText(lastSubmission.complaint.metadata.location_detail, 'Not provided')}
-                />
-                <ReceiptItem label="Category" value={lastSubmission.classification.category} />
-                <div className="result-panel">
-                  <strong>{lastSubmission.issue.title}</strong>
-                  <code>ISS-{lastSubmission.issue.id.slice(0, 8)}</code>
-                  <StatusBadge status={lastSubmission.issue.status} />
-                  <span>{lastSubmission.issue.intelligence.recommended_action}</span>
-                </div>
-                <div className="result-panel next-step-panel">
-                  <strong>What happens next?</strong>
-                  <span>
-                    Hostel staff can review this report with similar complaints and update the status when work starts
-                    or finishes.
-                  </span>
-                </div>
-              </div>
-            )}
-          </aside>
-        </section>
 
-        <section className="surface history-panel">
-          <div className="section-heading compact">
-            <h2>Your recent complaints</h2>
-            <FileText aria-hidden="true" />
-          </div>
-          <div className="student-history">
-            {isLoading && <HistorySkeleton />}
-            {!isLoading && complaints.length === 0 && (
-              <div className="empty-state">
-                <FileText aria-hidden="true" />
-                <p>No complaints yet. When you report an issue, it will appear here.</p>
-              </div>
-            )}
-            {complaints.map((complaint) => (
-              <article className="history-row" key={complaint.id}>
-                <div>
-                  <div className="history-title">
+            <div className="complaint-details-scroll">
+              {isLoading && <HistorySkeleton />}
+
+              {!isLoading && sortedComplaints.length === 0 && (
+                <div className="empty-state">
+                  <FileText aria-hidden="true" />
+                  <p>No complaints yet. When you report an issue, it will appear here.</p>
+                </div>
+              )}
+
+              {sortedComplaints.map((complaint) => (
+                <article className="complaint-card" key={complaint.id}>
+                  <div className="complaint-card-header">
                     <strong>{complaint.issue_title ?? `${complaint.category} issue`}</strong>
-                    {complaint.issue_status && <StatusBadge status={complaint.issue_status} />}
+
+                    {complaint.issue_status ? (
+                      <StatusBadge status={complaint.issue_status} />
+                    ) : (
+                      <span className="status-muted">Pending</span>
+                    )}
                   </div>
-                  <p>{complaint.text}</p>
-                  <code>CMP-{complaint.id.slice(0, 8)}</code>
-                  <EvidenceContext complaint={complaint} />
-                  {complaint.issue_recommended_action && (
-                    <small className="history-action">{complaint.issue_recommended_action}</small>
-                  )}
-                </div>
-                <div className="history-meta">
-                  <span>{complaint.hostel}</span>
-                  <span>{complaint.urgency}</span>
-                  {complaint.issue_sla_status && <span>{formatTimeStatus(complaint.issue_sla_status)}</span>}
-                  <small>{formatDateTime(complaint.created_at)}</small>
-                </div>
-              </article>
-            ))}
-          </div>
+
+                  <p className="complaint-text">{complaint.text}</p>
+
+                  <ComplaintLocation complaint={complaint} />
+
+                  <div className="complaint-card-footer">
+                    <code>CMP-{complaint.id.slice(0, 8)}</code>
+                    <span>{formatDateTime(complaint.created_at)}</span>
+                  </div>
+                </article>
+              ))}
+            </div>
+          </aside>
         </section>
       </div>
     </AppShell>
   )
 }
 
-function ReceiptItem({ label, value }: { label: string; value: string }) {
-  return (
-    <div className="receipt-item">
-      <span>{label}</span>
-      <strong>{value}</strong>
-    </div>
-  )
-}
-
-function EvidenceContext({ complaint }: { complaint: Complaint }) {
+function ComplaintLocation({ complaint }: { complaint: Complaint }) {
   const location = typeof complaint.metadata.location_detail === 'string' ? complaint.metadata.location_detail : ''
-  const impact = typeof complaint.metadata.impact_scope === 'string' ? complaint.metadata.impact_scope : ''
-  const contact =
-    typeof complaint.metadata.contact_permission === 'boolean' ? complaint.metadata.contact_permission : null
-  if (!location && !impact && contact === null) {
+
+  if (!location.trim()) {
     return null
   }
-  return (
-    <div className="evidence-context">
-      {location && <span>{location}</span>}
-      {impact && <span>{impact}</span>}
-      {contact !== null && <span>{contact ? 'Contact allowed' : 'No contact needed'}</span>}
-    </div>
-  )
-}
 
-function metadataText(value: unknown, fallback: string) {
-  return typeof value === 'string' && value.trim() ? value : fallback
-}
-
-function formatTimeStatus(status: string) {
-  const labels: Record<string, string> = {
-    ON_TRACK: 'On time',
-    AT_RISK: 'Due soon',
-    BREACHED: 'Late',
-    RESOLVED: 'Done',
-  }
-  return labels[status] ?? status.replace('_', ' ')
+  return <span className="complaint-location">{location}</span>
 }
 
 function HistorySkeleton() {

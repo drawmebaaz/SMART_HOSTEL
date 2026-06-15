@@ -172,7 +172,7 @@ export default function IssueDetailPage() {
                   </button>
                 </form>
                 <h2>Update history</h2>
-                <div className="timeline">
+                <div className="timeline issue-log-scroll">
                   {issue.events.length === 0 && (
                     <div className="empty-state">
                       <ClipboardCheck aria-hidden="true" />

@@ -87,7 +87,8 @@ export default function AdminDashboard() {
   const categoryOptions = useMemo(() => Object.keys(dashboard?.category_breakdown ?? {}).sort(), [dashboard])
   const slaOptions = useMemo(() => Object.keys(dashboard?.sla_breakdown ?? {}).sort(), [dashboard])
 
-  const topIssue = filteredIssues[0]
+  const attentionIssues = filteredIssues.filter((issue) => issue.status !== 'RESOLVED')
+  const topIssue = attentionIssues[0]
   const groupedCount = dashboard ? Math.max(0, dashboard.complaints_total - dashboard.issues.length) : 0
   const topHostel = dashboard ? topBreakdownEntry(dashboard.hostel_breakdown) : null
   const topCategory = dashboard ? topBreakdownEntry(dashboard.category_breakdown) : null
@@ -111,32 +112,11 @@ export default function AdminDashboard() {
       <div className="ops-page">
         <section className="command-board">
           <div className="command-copy">
-            <div className="command-kicker">
-              <span className="live-dot" aria-hidden="true" />
-              <p className="eyebrow">Admin dashboard</p>
-            </div>
             <h1>Hostel problem dashboard</h1>
             <p className="muted hero-copy">
               See what needs attention first, where students are affected, and what action should happen next.
             </p>
-            <div className="hero-signal-row" aria-label="Dashboard highlights">
-              <span>
-                <Building2 aria-hidden="true" />
-                Hostel
-              </span>
-              <span>
-                <Clock3 aria-hidden="true" />
-                Time left
-              </span>
-              <span>
-                <Gauge aria-hidden="true" />
-                Priority
-              </span>
-              <span>
-                <ClipboardList aria-hidden="true" />
-                Student reports
-              </span>
-            </div>
+            
             <div className="command-telemetry" aria-label="Dashboard summary">
               <Telemetry label="View" value={commandMode} />
               <Telemetry label="Avg priority" value={avgRisk} />
@@ -157,8 +137,8 @@ export default function AdminDashboard() {
               {topIssue ? topIssue.intelligence.recommended_action : 'Nothing is waiting right now. New student complaints will appear here.'}
             </p>
             <div className="directive-meta">
-              <span>{topHostel ? topHostel[0] : 'No active hostel'}</span>
-              <span>{topCategory ? topCategory[0] : 'No active category'}</span>
+              <span>{topIssue ? topIssue.hostel : 'No active hostel'}</span>
+              <span>{topIssue ? topIssue.category : 'No active category'}</span>
               <span>{topIssue ? formatTimeStatus(topIssue.intelligence.sla_status) : 'Stable'}</span>
             </div>
             <div className="hero-actions">
