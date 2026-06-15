@@ -586,19 +586,23 @@ button svg,
 }
 
 .signal-red {
-  border-left: 4px solid var(--red);
+  border-color: rgb(184 75 69 / 0.18);
+  background: #fffaf7;
 }
 
 .signal-amber {
-  border-left: 4px solid var(--amber);
+  border-color: rgb(184 121 18 / 0.18);
+  background: #fffaf2;
 }
 
 .signal-green {
-  border-left: 4px solid var(--green);
+  border-color: rgb(61 125 85 / 0.18);
+  background: #fbfff9;
 }
 
 .signal-blue {
-  border-left: 4px solid var(--blue);
+  border-color: rgb(31 95 153 / 0.18);
+  background: #fbfdff;
 }
 
 .signal-red .signal-icon,
@@ -853,7 +857,6 @@ textarea::placeholder {
 .form-error {
   margin: 0;
   border: 1px solid rgb(184 75 69 / 0.24);
-  border-left: 4px solid var(--red);
   border-radius: 12px;
   padding: 12px 14px;
   background: var(--red-soft);
