@@ -35,7 +35,6 @@ export function AppShell({ children }: { children: React.ReactNode }) {
           </nav>
           <div className="account">
             <span>{user?.name}</span>
-            <small>{user?.role === 'ADMIN' ? 'Staff' : 'Student'}</small>
             <button className="icon-button" type="button" onClick={handleLogout} aria-label="Log out">
               <LogOut aria-hidden="true" />
             </button>

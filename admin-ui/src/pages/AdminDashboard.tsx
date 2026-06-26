@@ -1,18 +1,10 @@
 import { useEffect, useMemo, useState } from 'react'
-import type { ReactNode } from 'react'
 import { Link } from 'react-router-dom'
 import {
-  Activity,
   Building2,
-  Clock3,
-  ClipboardList,
-  Layers3,
-  MapPin,
   RefreshCw,
   Search,
-  ShieldAlert,
   X,
-  Users,
 } from 'lucide-react'
 
 import { api } from '../api/client'
@@ -89,19 +81,10 @@ export default function AdminDashboard() {
 
   const attentionIssues = filteredIssues.filter((issue) => issue.status !== 'RESOLVED')
   const topIssue = attentionIssues[0]
-  const groupedCount = dashboard ? Math.max(0, dashboard.complaints_total - dashboard.issues.length) : 0
   const topHostel = dashboard ? topBreakdownEntry(dashboard.hostel_breakdown) : null
   const breachedCount = dashboard?.sla_breakdown.BREACHED ?? 0
   const atRiskCount = dashboard?.sla_breakdown.AT_RISK ?? 0
   const needsAttentionCount = dashboard ? Math.max(dashboard.critical_issues, breachedCount + atRiskCount) : 0
-  const avgRisk =
-    dashboard && dashboard.issues.length > 0
-      ? Math.round(dashboard.issues.reduce((total, issue) => total + issue.priority_score, 0) / dashboard.issues.length)
-      : 0
-  const groupedRate =
-    dashboard && dashboard.complaints_total > 0
-      ? Math.round((groupedCount / dashboard.complaints_total) * 100)
-      : 0
   const commandMode = dashboard?.critical_issues
     ? 'Needs review'
     : dashboard && dashboard.total_open > 0
@@ -116,13 +99,11 @@ export default function AdminDashboard() {
             <p className="muted hero-copy">
               See what needs attention first, where students are affected, and what action should happen next.
             </p>
-            
-            <div className="command-telemetry" aria-label="Staff board summary">
-              <Telemetry label="Board" value={commandMode} />
-              <Telemetry label="Usual need" value={formatNeedLevel(avgRisk)} />
-              <Telemetry label="Same problem reports" value={`${groupedRate}%`} />
-              <Telemetry label="Time" value={breachedCount > 0 ? `${breachedCount} late` : `${atRiskCount} due soon`} />
-            </div>
+
+            <p className="board-summary-line" aria-label="Staff board summary">
+              {commandMode} / {needsAttentionCount} to check / {breachedCount > 0 ? `${breachedCount} late` : `${atRiskCount} due soon`}
+              {topHostel ? ` / Most reports from ${topHostel[0]}` : ''} / {dashboard?.complaints_total ?? 0} student reports
+            </p>
           </div>
 
           <aside className="directive-panel" aria-label="Top problem">
@@ -131,20 +112,15 @@ export default function AdminDashboard() {
                 <p className="eyebrow">Needs attention first</p>
                 <h2>{topIssue ? displayProblemTitle(topIssue.title) : 'No active problem'}</h2>
               </div>
-              {topIssue && <NeedPill timeStatus={topIssue.intelligence.sla_status} value={topIssue.priority_score} />}
+              {topIssue && <NeedLabel timeStatus={topIssue.intelligence.sla_status} value={topIssue.priority_score} />}
             </div>
             <p className="muted">
               {topIssue ? displayAction(topIssue.intelligence.recommended_action) : 'Nothing is waiting right now. New student reports will appear here.'}
             </p>
             <div className="directive-meta">
-              <span>{topIssue ? topIssue.hostel : 'No active hostel'}</span>
-              <span>{topIssue ? topIssue.category : 'No active type'}</span>
-              <span>{topIssue ? formatTimeStatus(topIssue.intelligence.sla_status) : 'Stable'}</span>
+              {topIssue ? `${topIssue.hostel} / ${topIssue.category} / ${formatTimeStatus(topIssue.intelligence.sla_status)}` : 'No active hostel'}
             </div>
             <div className="hero-actions">
-              <span className="runtime-pill">
-                Most urgent first
-              </span>
               <button className="secondary-button" type="button" onClick={() => void load()}>
                 <RefreshCw aria-hidden="true" />
                 Refresh
@@ -158,24 +134,6 @@ export default function AdminDashboard() {
 
         {dashboard && (
           <>
-            <section className="signal-strip" aria-label="Staff board summary">
-              <SignalTile icon={<ShieldAlert />} label="Needs attention" value={`${needsAttentionCount} to check`} tone="red" />
-              <SignalTile icon={<Clock3 />} label="Late problems" value={`${breachedCount} late`} tone="amber" />
-              <SignalTile icon={<Clock3 />} label="Due soon" value={`${atRiskCount} due soon`} tone="blue" />
-              <SignalTile
-                icon={<MapPin />}
-                label="Most affected hostel"
-                value={topHostel ? `${topHostel[0]} (${topHostel[1]})` : 'None'}
-                tone="green"
-              />
-              <SignalTile
-                icon={<ClipboardList />}
-                label="Student reports"
-                value={`${dashboard.complaints_total} reports`}
-                tone="blue"
-              />
-            </section>
-
             <section className="surface queue-panel">
               <div className="section-heading">
                 <div>
@@ -281,7 +239,6 @@ export default function AdminDashboard() {
               <div className="issue-list">
                 {filteredIssues.length === 0 && (
                   <div className="empty-state">
-                    <ClipboardList aria-hidden="true" />
                     <p>No problems match this filter.</p>
                   </div>
                 )}
@@ -305,72 +262,14 @@ export default function AdminDashboard() {
                       <p>{displayAction(issue.intelligence.recommended_action)}</p>
                     </div>
                     <div className="issue-scoreboard">
-                      <NeedPill timeStatus={issue.intelligence.sla_status} value={issue.priority_score} />
-                      <span className={`sla-chip sla-${issue.intelligence.sla_status.toLowerCase()}`}>
+                      <NeedLabel timeStatus={issue.intelligence.sla_status} value={issue.priority_score} />
+                      <span className={`time-label time-${issue.intelligence.sla_status.toLowerCase()}`}>
                         {formatTimeStatus(issue.intelligence.sla_status)}
                       </span>
                       <span>{issue.complaint_count} student report{issue.complaint_count === 1 ? '' : 's'}</span>
                     </div>
                   </Link>
                 ))}
-              </div>
-            </section>
-
-            <section className="metric-grid premium">
-              <Metric icon={<Activity />} label="Open" value={dashboard.total_open} tone="blue" caption="Problems waiting" />
-              <Metric icon={<ShieldAlert />} label="To check" value={needsAttentionCount} tone="red" caption="Needs quick review" />
-              <Metric icon={<Users />} label="Reports" value={dashboard.complaints_total} tone="green" caption="From students" />
-              <Metric
-                icon={<Layers3 />}
-                label="Repeated"
-                value={groupedCount}
-                tone="amber"
-                caption="Reports about existing problems"
-              />
-            </section>
-
-            <section className="insight-grid">
-              <div className="surface">
-                <div className="section-heading compact">
-                  <h2>Time status</h2>
-                </div>
-                <Breakdown data={dashboard.sla_breakdown} labelFormatter={formatTimeStatus} />
-              </div>
-              <div className="surface">
-                <div className="section-heading compact">
-                  <h2>Problem types</h2>
-                </div>
-                <Breakdown data={dashboard.category_breakdown} />
-              </div>
-              <div className="surface spotlight">
-                <div className="section-heading compact">
-                  <h2>Suggested next step</h2>
-                </div>
-                {topIssue ? (
-                  <>
-                    <p className="spotlight-title">{displayProblemTitle(topIssue.title)}</p>
-                    <p className="muted">{displayAction(topIssue.intelligence.recommended_action)}</p>
-                    <Link className="secondary-button" to={`/admin/issues/${topIssue.id}`}>
-                      Open problem
-                    </Link>
-                  </>
-                ) : (
-                  <p className="muted">No problems waiting.</p>
-                )}
-              </div>
-              <div className="surface hostel-pulse">
-                <div className="section-heading compact">
-                  <h2>Hostel load</h2>
-                </div>
-                {topHostel ? (
-                  <div className="pulse-readout">
-                    <strong>{topHostel[0]}</strong>
-                    <span>{topHostel[1]} active problem{topHostel[1] === 1 ? '' : 's'}</span>
-                  </div>
-                ) : (
-                  <p className="muted">No hostel pressure yet.</p>
-                )}
-                <Breakdown data={dashboard.hostel_breakdown} compact />
               </div>
             </section>
           </>
@@ -380,90 +279,9 @@ export default function AdminDashboard() {
   )
 }
 
-function Telemetry({ label, value }: { label: string; value: ReactNode }) {
-  return (
-    <div className="telemetry-item">
-      <span>{label}</span>
-      <strong>{value}</strong>
-    </div>
-  )
-}
-
-function SignalTile({
-  icon,
-  label,
-  value,
-  tone,
-}: {
-  icon: ReactNode
-  label: string
-  value: string
-  tone: 'blue' | 'red' | 'green' | 'amber'
-}) {
-  return (
-    <div className={`signal-tile signal-${tone}`}>
-      <span className="signal-icon">{icon}</span>
-      <span>{label}</span>
-      <strong>{value}</strong>
-    </div>
-  )
-}
-
-function Metric({
-  icon,
-  label,
-  value,
-  tone,
-  caption,
-}: {
-  icon: ReactNode
-  label: string
-  value: number
-  tone: 'blue' | 'red' | 'green' | 'amber'
-  caption: string
-}) {
-  return (
-    <div className={`metric metric-${tone}`}>
-      <span className="metric-icon">{icon}</span>
-      <span>{label}</span>
-      <strong>{value}</strong>
-      <small>{caption}</small>
-    </div>
-  )
-}
-
-function Breakdown({
-  data,
-  compact = false,
-  labelFormatter,
-}: {
-  data: Record<string, number>
-  compact?: boolean
-  labelFormatter?: (label: string) => string
-}) {
-  const entries = Object.entries(data).sort((a, b) => b[1] - a[1])
-  const max = Math.max(...entries.map(([, value]) => value), 1)
-  if (entries.length === 0) {
-    return <p className="muted">No data yet.</p>
-  }
-  return (
-    <div className={compact ? 'breakdown compact-breakdown' : 'breakdown'}>
-      {entries.map(([label, value]) => (
-        <div className="breakdown-row" key={label}>
-          <span>{labelFormatter ? labelFormatter(label) : label.replace('_', ' ')}</span>
-          <div className="bar-track">
-            <div className="bar-fill" style={{ width: `${(value / max) * 100}%` }} />
-          </div>
-          <strong>{value}</strong>
-        </div>
-      ))}
-    </div>
-  )
-}
-
-function NeedPill({ value, timeStatus }: { value: number; timeStatus?: string }) {
+function NeedLabel({ value, timeStatus }: { value: number; timeStatus?: string }) {
   const label = formatNeedLevel(value, timeStatus)
-  return <span className={`need-pill need-${label.toLowerCase()}`}>{label}</span>
+  return <span className={`need-label need-${label.toLowerCase()}`}>{label} need</span>
 }
 
 function DashboardSkeleton() {

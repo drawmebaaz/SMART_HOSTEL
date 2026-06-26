@@ -1,7 +1,6 @@
 import { FormEvent, useCallback, useEffect, useState } from 'react'
-import type { ReactNode } from 'react'
 import { Link, useParams } from 'react-router-dom'
-import { ArrowLeft, Clock, FileText, MessageSquareText, Save, ShieldAlert, Users } from 'lucide-react'
+import { ArrowLeft, Save } from 'lucide-react'
 
 import { api } from '../api/client'
 import type { IssueDetail, IssueStatus } from '../api/types'
@@ -10,14 +9,6 @@ import { StatusBadge } from '../components/StatusBadge'
 import { formatDateTime } from '../utils/time'
 
 const STATUSES: IssueStatus[] = ['OPEN', 'IN_PROGRESS', 'REOPENED', 'RESOLVED']
-const NOTE_TEMPLATES = [
-  'Maintenance team assigned.',
-  'Problem checked by staff.',
-  'Work in progress.',
-  'Waiting for external vendor.',
-  'Resolved after inspection.',
-  'Needs student confirmation.',
-]
 
 export default function IssueDetailPage() {
   const { issueId } = useParams()
@@ -69,42 +60,30 @@ export default function IssueDetailPage() {
               <div>
                 <p className="eyebrow">{issue.hostel} / {issue.category}</p>
                 <h1>{displayProblemTitle(issue.title)}</h1>
-                <p className="reference-line">Problem no. {issue.id.slice(0, 8)}</p>
                 <p className="muted hero-copy">{displayAction(issue.intelligence.recommended_action)}</p>
-                <div className="hero-signal-row">
-                  <span>
-                    <ShieldAlert aria-hidden="true" />
-                    {formatCondition(issue.intelligence.health_label)}
-                  </span>
-                  <span>
-                    <Clock aria-hidden="true" />
-                    {formatTimeStatus(issue.intelligence.sla_status)}
-                  </span>
-                </div>
+                <p className="detail-subline">
+                  {formatCondition(issue.intelligence.health_label)} / {formatTimeStatus(issue.intelligence.sla_status)}
+                </p>
+                <dl className="detail-facts">
+                  <div>
+                    <dt>Need</dt>
+                    <dd>{formatNeedLevel(issue.priority_score, issue.intelligence.sla_status)}</dd>
+                  </div>
+                  <div>
+                    <dt>Students affected</dt>
+                    <dd>{issue.intelligence.affected_students_estimate}</dd>
+                  </div>
+                  <div>
+                    <dt>Time</dt>
+                    <dd>{formatTimeStatus(issue.intelligence.sla_status)}</dd>
+                  </div>
+                  <div>
+                    <dt>Reports</dt>
+                    <dd>{issue.complaint_count}</dd>
+                  </div>
+                </dl>
               </div>
               <StatusBadge status={issue.status} />
-            </section>
-
-            <section className="metric-grid premium">
-              <Metric
-                icon={<ShieldAlert />}
-                label="Need"
-                value={formatNeedLevel(issue.priority_score, issue.intelligence.sla_status)}
-                caption="How urgent this looks"
-              />
-              <Metric
-                icon={<Users />}
-                label="Students affected"
-                value={issue.intelligence.affected_students_estimate}
-                caption="Estimated from reports"
-              />
-              <Metric
-                icon={<Clock />}
-                label="Time left"
-                value={formatSlaValue(issue.intelligence.minutes_remaining)}
-                caption={issue.intelligence.minutes_remaining < 0 ? 'Overdue' : 'Remaining'}
-              />
-              <Metric icon={<FileText />} label="Reports" value={issue.complaint_count} caption="Related student reports" />
             </section>
 
             <section className="workspace-grid">
@@ -115,7 +94,6 @@ export default function IssueDetailPage() {
                 <div className="evidence-list">
                   {issue.complaints.length === 0 && (
                     <div className="empty-state">
-                      <FileText aria-hidden="true" />
                       <p>No student reports are attached yet.</p>
                     </div>
                   )}
@@ -129,7 +107,7 @@ export default function IssueDetailPage() {
                           {complaint.student_name ?? 'Student'} / {formatDateTime(complaint.created_at)}
                         </small>
                       </div>
-                      <span>
+                      <span className="report-relation">
                         {complaint.similarity_score ? 'Related report' : 'First report'}
                       </span>
                     </article>
@@ -160,14 +138,6 @@ export default function IssueDetailPage() {
                       placeholder="Add a short update"
                     />
                   </label>
-                  <div className="note-templates" aria-label="Quick note templates">
-                    {NOTE_TEMPLATES.map((template) => (
-                      <button key={template} type="button" onClick={() => setNotes(template)}>
-                        <MessageSquareText aria-hidden="true" />
-                        {template}
-                      </button>
-                    ))}
-                  </div>
                   <button className="primary-button" type="submit" disabled={isSaving}>
                     <Save aria-hidden="true" />
                     {isSaving ? 'Saving...' : 'Save update'}
@@ -189,7 +159,7 @@ export default function IssueDetailPage() {
                           {event.to_status ? formatEventStatus(event.to_status) : ''}
                         </span>
                       )}
-                      {event.notes && <p>{event.notes}</p>}
+                      {event.notes && <p>{displayHistoryNote(event.notes)}</p>}
                       <small>{formatDateTime(event.created_at)}</small>
                     </article>
                   ))}
@@ -249,6 +219,14 @@ function displayAction(action: string) {
   return action.replace(/\bissues\b/gi, 'problems').replace(/\bissue\b/gi, 'problem')
 }
 
+function displayHistoryNote(note: string) {
+  return note
+    .replace(/\bcomplaints\b/gi, 'reports')
+    .replace(/\bcomplaint\b/gi, 'report')
+    .replace(/\bissues\b/gi, 'problems')
+    .replace(/\bissue\b/gi, 'problem')
+}
+
 function formatUrgency(urgency: string) {
   const labels: Record<string, string> = {
     LOW: 'Low',
@@ -288,35 +266,11 @@ function EvidenceContext({ complaint }: { complaint: IssueDetail['complaints'][n
   }
   return (
     <div className="evidence-context">
-      {location && <span>{location}</span>}
-      {impact && <span>{impact}</span>}
+      {location && <span>Location: {location}</span>}
+      {impact && <span>Affected: {impact}</span>}
       {contact !== null && <span>{contact ? 'Contact allowed' : 'No contact needed'}</span>}
     </div>
   )
-}
-
-function Metric({ icon, label, value, caption }: { icon: ReactNode; label: string; value: number | string; caption: string }) {
-  return (
-    <div className="metric">
-      <span className="metric-icon">{icon}</span>
-      <span>{label}</span>
-      <strong>{value}</strong>
-      <small>{caption}</small>
-    </div>
-  )
-}
-
-function formatSlaValue(minutes: number) {
-  const absoluteMinutes = Math.abs(minutes)
-  if (absoluteMinutes >= 60) {
-    const hours = Math.floor(absoluteMinutes / 60)
-    const rest = absoluteMinutes % 60
-    return rest ? `${hours}h ${rest}m` : `${hours}h`
-  }
-  if (minutes < 0) {
-    return `${absoluteMinutes}m`
-  }
-  return `${minutes}m`
 }
 
 function IssueDetailSkeleton() {

@@ -259,11 +259,3 @@ cd admin-ui
 npm run lint
 npm run build
 ```
-
-## Notes
-
-- Keep `.env` private.
-- Change demo passwords before sharing outside a controlled demo.
-- Use `SECURE_COOKIES=true` on HTTPS production deployments.
-- Keep transformer embeddings disabled on very small free servers unless enough memory is available.
-- Do not commit local database files, logs, generated artifacts, or dependency folders.

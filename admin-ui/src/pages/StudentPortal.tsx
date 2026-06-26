@@ -1,5 +1,5 @@
 import { FormEvent, useEffect, useMemo, useState } from 'react'
-import { FileText, MessageSquareText, Send } from 'lucide-react'
+import { Send } from 'lucide-react'
 import { api } from '../api/client'
 import type { Complaint } from '../api/types'
 import { AppShell } from '../components/AppShell'
@@ -8,14 +8,6 @@ import { formatDateTime } from '../utils/time'
 
 const HOSTELS = ['BH-1', 'BH-2', 'BH-3', 'BH-4', 'BH-5', 'GH-1', 'GH-2', 'GH-3', 'New Hostel', 'Old Hostel']
 const IMPACT_OPTIONS = ['Only my room', 'Same floor', 'Whole wing', 'Common area', 'Multiple students']
-const EXAMPLES = [
-  'Water is not coming in my wing',
-  'Bathroom cleaning has not happened',
-  'Fan is not working',
-  'Mess food problem',
-  'Wi-Fi problem near my room',
-]
-
 export default function StudentPortal() {
   const [text, setText] = useState('')
   const [hostel, setHostel] = useState(HOSTELS[0])
@@ -94,10 +86,6 @@ export default function StudentPortal() {
               Tell the hostel team what happened, where it happened, and who is affected. Your recent reports stay visible here.
             </p>
           </div>
-          <div className="intro-stat">
-            <strong>{sortedComplaints.length}</strong>
-            <span>Reports submitted</span>
-          </div>
         </section>
         <section className="workspace-grid">
           <div className="surface wide submit-panel">
@@ -158,14 +146,6 @@ export default function StudentPortal() {
                     required
                   />
                 </label>
-                <div className="example-row">
-                  {EXAMPLES.map((example) => (
-                    <button key={example} type="button" onClick={() => setText(example)}>
-                      <MessageSquareText aria-hidden="true" />
-                      {example}
-                    </button>
-                  ))}
-                </div>
               </section>
 
               <section className="report-section">
@@ -230,7 +210,6 @@ export default function StudentPortal() {
 
               {!isLoading && sortedComplaints.length === 0 && (
                 <div className="empty-state">
-                  <FileText aria-hidden="true" />
                   <p>No reports yet. When you report a problem, it will appear here.</p>
                 </div>
               )}
@@ -271,7 +250,7 @@ function ComplaintLocation({ complaint }: { complaint: Complaint }) {
     return null
   }
 
-  return <span className="complaint-location">{location}</span>
+  return <span className="complaint-location">Location: {location}</span>
 }
 
 function displayProblemTitle(title: string) {
