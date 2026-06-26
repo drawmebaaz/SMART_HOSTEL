@@ -1,6 +1,6 @@
 import { FormEvent, useState } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
-import { ArrowRight, Building2, ClipboardList, Fingerprint, LogIn, ShieldCheck } from 'lucide-react'
+import { ArrowRight, Fingerprint, LogIn } from 'lucide-react'
 
 import { oauthProvider, oauthStartUrl } from '../api/client'
 import { useAuth } from '../auth/AuthContext'
@@ -32,40 +32,34 @@ export default function LoginPage() {
       <section className="auth-layout" aria-label="Smart Hostel Grievance sign in">
         <div className="auth-intel-panel auth-minimal-panel">
           <div className="auth-brand-block">
-            <div className="auth-brand-icon">
-              <Building2 aria-hidden="true" />
-            </div>
-
             <div>
               <p className="eyebrow">Hostel access</p>
-              <h1>Hostel complaint help desk</h1>
+              <h1>Hostel help desk</h1>
               <p className="muted">
-                Report hostel problems clearly and help staff resolve the most important issues first.
+                Report hostel problems clearly and help staff resolve the most important problems first.
               </p>
             </div>
           </div>
 
           <div className="auth-minimal-list">
             <div>
-              <ClipboardList aria-hidden="true" />
-              <span>Submit complaints with hostel, location, and context.</span>
+              <span>Send reports with hostel, location, and useful details.</span>
             </div>
 
             <div>
-              <ShieldCheck aria-hidden="true" />
-              <span>Track whether your issue is new, in progress, or resolved.</span>
+              <span>Track whether your problem is new, being fixed, or resolved.</span>
             </div>
           </div>
 
           <p className="auth-note">
-            Built for students and hostel administrators.
+            Built for students and hostel staff.
           </p>
         </div>
         <div className="auth-panel">
           <div>
-            <p className="eyebrow">Secure session</p>
+            <p className="eyebrow">Welcome back</p>
             <h2>Sign in</h2>
-            <p className="muted">Use your student or administrator account.</p>
+            <p className="muted">Use your student or staff account.</p>
           </div>
           <form onSubmit={submit} className="form-stack">
             <label htmlFor="login-email">

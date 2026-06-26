@@ -1,6 +1,6 @@
 # Smart Hostel Grievance
 
-A full-stack hostel complaint platform where students report problems and hostel staff manage them from a focused admin dashboard.
+A hostel problem-reporting platform where students raise problems clearly and hostel staff manage them from a focused staff board.
 
 Live demo: [https://smart-hostel-grievance.onrender.com](https://smart-hostel-grievance.onrender.com)
 
@@ -8,51 +8,51 @@ Render free-tier apps may take a short time to wake up after inactivity.
 
 ## Screenshots
 
-### Admin Dashboard
+### Staff Board
 
-![Admin dashboard showing hostel problems, filters, priority sorting, and student reports](docs/images/admin-dashboard.png)
+![Staff board showing hostel problems, filters, priority sorting, and student reports](docs/images/admin-dashboard.png)
 
-### Student Complaint Flow
+### Student Report Flow
 
-![Student complaint screen showing complaint context, receipt, and recent complaint history](docs/images/student-complaint-flow.png)
+![Student report screen showing location, report details, and recent report history](docs/images/student-complaint-flow.png)
 
 ## Demo Accounts
 
 ```text
-Admin:   admin@example.com / YourStrongPassword123
+Staff:   admin@example.com / YourStrongPassword123
 Student: student@example.com / StudentPassword123
 ```
 
 ## What The Project Does
 
-Smart Hostel Grievance helps hostels move from scattered complaints to clear action.
+Smart Hostel Grievance helps hostels move from scattered student reports to clear action.
 
 Students can:
 
 - Create an account and log in securely.
-- Submit hostel complaints in English or Hinglish.
+- Submit hostel reports in English or Hinglish.
 - Add useful context such as hostel, exact location, impact, and contact permission.
-- See what was understood from their complaint.
-- Track recent complaints and their current status.
+- See what was understood from their report.
+- Track recent reports and their current progress.
 
-Admins can:
+Hostel staff can:
 
 - See the most urgent hostel problems first.
-- View similar student complaints together instead of as separate scattered reports.
-- Filter problems by hostel, category, status, and time pressure.
+- View similar student reports together instead of as separate scattered reports.
+- Filter problems by hostel, type, progress, and time pressure.
 - Open each problem and review the student reports behind it.
-- Add updates and move problems through resolution states.
+- Add updates and move problems toward resolution.
 
 ## Why It Stands Out
 
-- Real student and admin workflows instead of a static dashboard.
-- Similar complaints are grouped into one problem so staff avoid duplicate work.
-- English and Hinglish complaint handling.
-- Clear priority sorting so admins know what needs attention first.
-- Student-friendly complaint form with low-friction context fields.
-- Admin dashboard built for daily use: search, filters, status badges, history, and quick updates.
-- Secure login with student/admin roles and HTTP-only cookies.
-- Production-oriented backend structure with routers, services, repositories, schemas, and migrations.
+- Real student and staff workflows instead of a static screen.
+- Similar reports are grouped into one problem so staff avoid duplicate work.
+- English and Hinglish report handling.
+- Clear priority sorting so staff know what needs attention first.
+- Student-friendly report form with low-friction context fields.
+- Staff board built for daily use: search, filters, progress labels, history, and quick updates.
+- Secure login with student/staff roles and HTTP-only cookies.
+- Clean engineering structure with tests, typed data shapes, and database migrations.
 - Free deployment-ready setup using Render and Neon.
 
 ## Screens And Workflows
@@ -60,18 +60,18 @@ Admins can:
 ### Student Side
 
 1. Student logs in or creates an account.
-2. Student selects hostel and writes the complaint.
+2. Student selects hostel and writes the report.
 3. Student optionally adds exact location, impact, and contact permission.
-4. The system saves the complaint and links it to the right hostel problem.
-5. Student can view recent complaints and current status.
+4. The system saves the report and links it to the right hostel problem.
+5. Student can view recent reports and current progress.
 
-### Admin Side
+### Staff Side
 
-1. Admin logs in.
-2. Dashboard shows problems sorted by priority.
-3. Admin filters by hostel, category, status, or time status.
-4. Admin opens a problem to review all related student reports.
-5. Admin updates status and adds a short note.
+1. Staff logs in.
+2. Staff board shows problems sorted by priority.
+3. Staff filters by hostel, type, progress, or time status.
+4. Staff opens a problem to review all related student reports.
+5. Staff updates progress and adds a short note.
 
 ## Development Blog
 
@@ -81,7 +81,7 @@ Read the build story, problems faced, errors encountered, and fixes here:
 
 ## Tech Stack
 
-Backend:
+App server:
 
 - FastAPI
 - SQLAlchemy
@@ -90,7 +90,7 @@ Backend:
 - SQLite option for quick local development
 - Pydantic settings and schemas
 - Cookie-based authentication
-- Local complaint classification and grouping logic
+- Local report understanding and grouping logic
 
 Frontend:
 
@@ -116,14 +116,14 @@ app/
   repositories/    database access
   db/models/       database models
   schemas/         request and response shapes
-  ai/              complaint understanding and grouping
+  ai/              report understanding and grouping
   core/            config and security
 
 admin-ui/src/
   api/             frontend API client
   auth/            login/session state
   components/      shared UI pieces
-  pages/           login, register, student, admin, issue detail
+  pages/           login, register, student, staff board, problem detail
   styles/          app styling
   utils/           time formatting helpers
 ```
@@ -142,7 +142,7 @@ Complaints:
 - `POST /api/v1/complaints`
 - `GET /api/v1/complaints/me`
 
-Admin:
+Staff:
 
 - `GET /api/v1/admin/dashboard`
 - `GET /api/v1/admin/issues`
@@ -172,7 +172,7 @@ SECRET_KEY=replace-with-at-least-32-random-characters
 ENABLE_TRANSFORMER_EMBEDDINGS=false
 ```
 
-Install and run the backend:
+Install and run the app server:
 
 ```bash
 pip install -r requirements.txt
@@ -195,7 +195,7 @@ API docs: http://localhost:8000/api/v1/docs
 Health:   http://localhost:8000/api/v1/health
 ```
 
-If port `8000` is already busy, run the backend on another port and point Vite to it:
+If port `8000` is already busy, run the app server on another port and point Vite to it:
 
 ```bash
 uvicorn app.main:app --reload --port 8010
@@ -210,16 +210,16 @@ $env:VITE_API_PROXY_TARGET="http://127.0.0.1:8010"
 npm run dev -- --port 3001
 ```
 
-Seed demo users and sample complaints:
+Seed demo users and sample reports:
 
 ```bash
 python scripts/seed_demo.py
 ```
 
-Create or update an admin:
+Create or update a staff account:
 
 ```bash
-python scripts/create_admin.py --email admin@example.com --name "Hostel Admin" --password "YourStrongPassword123"
+python scripts/create_admin.py --email admin@example.com --name "Hostel Staff" --password "YourStrongPassword123"
 ```
 
 ## Deploy For Free
@@ -245,7 +245,7 @@ postgresql+psycopg://USER:PASSWORD@HOST/DATABASE?sslmode=require
 
 ## Quality Checks
 
-Backend:
+Python app:
 
 ```bash
 python -m compileall app

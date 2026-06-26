@@ -31,7 +31,7 @@ describe('StudentPortal', () => {
       </BrowserRouter>,
     )
 
-    expect(await screen.findByText('Guided report')).toBeInTheDocument()
+    expect(await screen.findByText('Report details')).toBeInTheDocument()
     expect(screen.getByLabelText('Hostel')).toBeInTheDocument()
     expect(screen.getByLabelText('What is the problem?')).toBeInTheDocument()
   })

@@ -1,5 +1,5 @@
 import { FormEvent, useEffect, useMemo, useState } from 'react'
-import { ClipboardCheck, FileText, MessageSquareText, Send } from 'lucide-react'
+import { FileText, MessageSquareText, Send } from 'lucide-react'
 import { api } from '../api/client'
 import type { Complaint } from '../api/types'
 import { AppShell } from '../components/AppShell'
@@ -12,7 +12,7 @@ const EXAMPLES = [
   'Water is not coming in my wing',
   'Bathroom cleaning has not happened',
   'Fan is not working',
-  'Mess food issue',
+  'Mess food problem',
   'Wi-Fi problem near my room',
 ]
 
@@ -38,7 +38,7 @@ export default function StudentPortal() {
 
   useEffect(() => {
     void loadComplaints().catch((err) => {
-      setError(err instanceof Error ? err.message : 'Unable to load complaints')
+      setError(err instanceof Error ? err.message : 'Unable to load reports')
       setIsLoading(false)
     })
   }, [])
@@ -63,7 +63,7 @@ export default function StudentPortal() {
       setContext((current) => ({ ...current, location: '' }))
       await loadComplaints()
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'Unable to submit complaint')
+      setError(err instanceof Error ? err.message : 'Unable to submit report')
     } finally {
       setIsSubmitting(false)
     }
@@ -86,12 +86,25 @@ export default function StudentPortal() {
   return (
     <AppShell>
       <div className="student-page">
+        <section className="student-intro">
+          <div>
+            <p className="eyebrow">Student portal</p>
+            <h1>Report a hostel problem</h1>
+            <p className="muted">
+              Tell the hostel team what happened, where it happened, and who is affected. Your recent reports stay visible here.
+            </p>
+          </div>
+          <div className="intro-stat">
+            <strong>{sortedComplaints.length}</strong>
+            <span>Reports submitted</span>
+          </div>
+        </section>
         <section className="workspace-grid">
           <div className="surface wide submit-panel">
             <div className="section-heading">
               <div>
-                <p className="eyebrow">New complaint</p>
-                <h2>Guided report</h2>
+                <p className="eyebrow">New report</p>
+                <h2>Report details</h2>
               </div>
               <span className={`counter ${characterTone}`}>{text.length}/2000</span>
             </div>
@@ -207,10 +220,9 @@ export default function StudentPortal() {
           <aside className="surface ai-receipt complaint-details-panel">
             <div className="section-heading compact">
               <div>
-                <h2>Complaint details</h2>
-                <p className="muted">{sortedComplaints.length} submitted complaint{sortedComplaints.length === 1 ? '' : 's'}</p>
+                <h2>Your reports</h2>
+                <p className="muted">{sortedComplaints.length} report{sortedComplaints.length === 1 ? '' : 's'} sent</p>
               </div>
-              <ClipboardCheck aria-hidden="true" />
             </div>
 
             <div className="complaint-details-scroll">
@@ -219,14 +231,14 @@ export default function StudentPortal() {
               {!isLoading && sortedComplaints.length === 0 && (
                 <div className="empty-state">
                   <FileText aria-hidden="true" />
-                  <p>No complaints yet. When you report an issue, it will appear here.</p>
+                  <p>No reports yet. When you report a problem, it will appear here.</p>
                 </div>
               )}
 
               {sortedComplaints.map((complaint) => (
                 <article className="complaint-card" key={complaint.id}>
                   <div className="complaint-card-header">
-                    <strong>{complaint.issue_title ?? `${complaint.category} issue`}</strong>
+                    <strong>{displayProblemTitle(complaint.issue_title ?? `${complaint.category} problem`)}</strong>
 
                     {complaint.issue_status ? (
                       <StatusBadge status={complaint.issue_status} />
@@ -240,7 +252,6 @@ export default function StudentPortal() {
                   <ComplaintLocation complaint={complaint} />
 
                   <div className="complaint-card-footer">
-                    <code>CMP-{complaint.id.slice(0, 8)}</code>
                     <span>{formatDateTime(complaint.created_at)}</span>
                   </div>
                 </article>
@@ -263,9 +274,13 @@ function ComplaintLocation({ complaint }: { complaint: Complaint }) {
   return <span className="complaint-location">{location}</span>
 }
 
+function displayProblemTitle(title: string) {
+  return title.replace(/\bissue\b/gi, 'problem')
+}
+
 function HistorySkeleton() {
   return (
-    <div className="history-skeleton" aria-live="polite" aria-label="Loading recent complaints">
+    <div className="history-skeleton" aria-live="polite" aria-label="Loading recent reports">
       <span />
       <span />
       <span />

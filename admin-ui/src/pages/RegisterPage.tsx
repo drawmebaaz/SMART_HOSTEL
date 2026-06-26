@@ -1,6 +1,6 @@
 import { FormEvent, useState } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
-import { ArrowRight, CheckCircle2, ClipboardCheck, KeyRound, UserPlus } from 'lucide-react'
+import { ArrowRight, UserPlus } from 'lucide-react'
 
 import { useAuth } from '../auth/AuthContext'
 
@@ -30,30 +30,27 @@ export default function RegisterPage() {
       <section className="auth-layout compact-auth" aria-label="Student registration">
         <div className="auth-intel-panel auth-minimal-panel">
           <div className="auth-brand-block">
-
             <div>
               <p className="eyebrow">Student account</p>
               <h1>Create your hostel help desk account</h1>
               <p className="muted">
-                Submit hostel complaints, keep a record of your reports, and track when the issue moves forward.
+                Send hostel reports, keep a record of them, and track when the problem moves forward.
               </p>
             </div>
           </div>
 
           <div className="auth-minimal-list">
             <div>
-              <ClipboardCheck aria-hidden="true" />
-              <span>Your complaints are saved with hostel and location details.</span>
+              <span>Your reports are saved with hostel and location details.</span>
             </div>
 
             <div>
-              <CheckCircle2 aria-hidden="true" />
-              <span>Track whether your reported issue is new, in progress, or resolved.</span>
+              <span>Track whether your reported problem is new, being fixed, or resolved.</span>
             </div>
           </div>
 
           <p className="auth-note">
-            Student accounts only. Admin access is managed separately.
+            Student accounts only. Staff access is managed separately.
           </p>
         </div>
 
@@ -61,7 +58,7 @@ export default function RegisterPage() {
           <div>
             <p className="eyebrow">Student access</p>
             <h2>Create account</h2>
-            <p className="muted">Admin accounts are provisioned separately for hostel staff.</p>
+            <p className="muted">Staff accounts are created separately by the hostel team.</p>
           </div>
           <form onSubmit={submit} className="form-stack">
             <label htmlFor="register-name">

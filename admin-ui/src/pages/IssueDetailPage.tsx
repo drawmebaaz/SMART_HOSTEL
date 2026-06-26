@@ -1,7 +1,7 @@
 import { FormEvent, useCallback, useEffect, useState } from 'react'
 import type { ReactNode } from 'react'
 import { Link, useParams } from 'react-router-dom'
-import { ArrowLeft, ClipboardCheck, Clock, FileText, MessageSquareText, Save, ShieldAlert, Users } from 'lucide-react'
+import { ArrowLeft, Clock, FileText, MessageSquareText, Save, ShieldAlert, Users } from 'lucide-react'
 
 import { api } from '../api/client'
 import type { IssueDetail, IssueStatus } from '../api/types'
@@ -12,7 +12,7 @@ import { formatDateTime } from '../utils/time'
 const STATUSES: IssueStatus[] = ['OPEN', 'IN_PROGRESS', 'REOPENED', 'RESOLVED']
 const NOTE_TEMPLATES = [
   'Maintenance team assigned.',
-  'Issue verified by staff.',
+  'Problem checked by staff.',
   'Work in progress.',
   'Waiting for external vendor.',
   'Resolved after inspection.',
@@ -35,7 +35,7 @@ export default function IssueDetailPage() {
   }, [issueId])
 
   useEffect(() => {
-    void load().catch((err) => setError(err instanceof Error ? err.message : 'Unable to load issue'))
+    void load().catch((err) => setError(err instanceof Error ? err.message : 'Unable to load problem'))
   }, [load])
 
   const submit = async (event: FormEvent) => {
@@ -48,7 +48,7 @@ export default function IssueDetailPage() {
       setNotes('')
       await load()
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'Unable to update status')
+      setError(err instanceof Error ? err.message : 'Unable to save update')
     } finally {
       setIsSaving(false)
     }
@@ -59,7 +59,7 @@ export default function IssueDetailPage() {
       <div className="detail-page">
         <Link className="back-link" to="/admin">
           <ArrowLeft aria-hidden="true" />
-          Back to dashboard
+          Back to staff board
         </Link>
         {error && <p className="form-error">{error}</p>}
         {!issue && <IssueDetailSkeleton />}
@@ -68,13 +68,13 @@ export default function IssueDetailPage() {
             <section className="detail-hero">
               <div>
                 <p className="eyebrow">{issue.hostel} / {issue.category}</p>
-                <h1>{issue.title}</h1>
-                <code>ISS-{issue.id.slice(0, 8)}</code>
-                <p className="muted hero-copy">{issue.intelligence.recommended_action}</p>
+                <h1>{displayProblemTitle(issue.title)}</h1>
+                <p className="reference-line">Problem no. {issue.id.slice(0, 8)}</p>
+                <p className="muted hero-copy">{displayAction(issue.intelligence.recommended_action)}</p>
                 <div className="hero-signal-row">
                   <span>
                     <ShieldAlert aria-hidden="true" />
-                    {issue.intelligence.health_label}
+                    {formatCondition(issue.intelligence.health_label)}
                   </span>
                   <span>
                     <Clock aria-hidden="true" />
@@ -86,7 +86,12 @@ export default function IssueDetailPage() {
             </section>
 
             <section className="metric-grid premium">
-              <Metric icon={<ShieldAlert />} label="Priority" value={issue.priority_score} caption="How urgent this looks" />
+              <Metric
+                icon={<ShieldAlert />}
+                label="Need"
+                value={formatNeedLevel(issue.priority_score, issue.intelligence.sla_status)}
+                caption="How urgent this looks"
+              />
               <Metric
                 icon={<Users />}
                 label="Students affected"
@@ -99,15 +104,13 @@ export default function IssueDetailPage() {
                 value={formatSlaValue(issue.intelligence.minutes_remaining)}
                 caption={issue.intelligence.minutes_remaining < 0 ? 'Overdue' : 'Remaining'}
               />
-              <Metric icon={<FileText />} label="Reports" value={issue.complaint_count} caption="Linked student complaints" />
-              <Metric icon={<ShieldAlert />} label="Condition" value={issue.intelligence.health_score} caption="How serious it looks" />
+              <Metric icon={<FileText />} label="Reports" value={issue.complaint_count} caption="Related student reports" />
             </section>
 
             <section className="workspace-grid">
               <div className="surface wide">
                 <div className="section-heading compact">
                   <h2>Student reports</h2>
-                  <FileText aria-hidden="true" />
                 </div>
                 <div className="evidence-list">
                   {issue.complaints.length === 0 && (
@@ -119,16 +122,15 @@ export default function IssueDetailPage() {
                   {issue.complaints.map((complaint) => (
                     <article className="evidence-item" key={complaint.id}>
                       <div>
-                        <strong>{complaint.urgency}</strong>
+                        <strong>{formatUrgency(complaint.urgency)}</strong>
                         <p>{complaint.text}</p>
-                        <code>CMP-{complaint.id.slice(0, 8)}</code>
                         <EvidenceContext complaint={complaint} />
                         <small>
-                          {complaint.student_name ?? 'Student'} / {complaint.language} / {formatDateTime(complaint.created_at)}
+                          {complaint.student_name ?? 'Student'} / {formatDateTime(complaint.created_at)}
                         </small>
                       </div>
                       <span>
-                        {complaint.similarity_score ? 'Grouped report' : 'First report'}
+                        {complaint.similarity_score ? 'Related report' : 'First report'}
                       </span>
                     </article>
                   ))}
@@ -136,10 +138,10 @@ export default function IssueDetailPage() {
               </div>
 
               <aside className="surface">
-                <h2>Resolution update</h2>
+                <h2>Work update</h2>
                 <form className="form-stack" onSubmit={submit}>
                   <label htmlFor="issue-status">
-                    Status
+                    Progress
                     <select id="issue-status" value={status} onChange={(event) => setStatus(event.target.value as IssueStatus)}>
                       {STATUSES.map((value) => (
                         <option key={value} value={value}>
@@ -168,20 +170,19 @@ export default function IssueDetailPage() {
                   </div>
                   <button className="primary-button" type="submit" disabled={isSaving}>
                     <Save aria-hidden="true" />
-                    {isSaving ? 'Saving...' : 'Save status'}
+                    {isSaving ? 'Saving...' : 'Save update'}
                   </button>
                 </form>
-                <h2>Update history</h2>
+                <h2>Staff updates</h2>
                 <div className="timeline issue-log-scroll">
                   {issue.events.length === 0 && (
                     <div className="empty-state">
-                      <ClipboardCheck aria-hidden="true" />
-                      <p>No admin decisions recorded yet.</p>
+                      <p>No staff updates recorded yet.</p>
                     </div>
                   )}
                   {issue.events.map((event) => (
                     <article className="timeline-item" key={event.id}>
-                      <strong>{event.event_type.replace('_', ' ')}</strong>
+                      <strong>{formatEventType(event.event_type)}</strong>
                       {(event.to_status || event.from_status) && (
                         <span>
                           {event.from_status ? `${formatEventStatus(event.from_status)} to ` : ''}
@@ -220,6 +221,51 @@ function formatStatus(status: IssueStatus) {
     RESOLVED: 'Resolved',
   }
   return labels[status]
+}
+
+function formatCondition(label: string) {
+  const labels: Record<string, string> = {
+    HEALTHY: 'Looks okay',
+    WATCH: 'Keep watch',
+    RISK: 'Needs attention',
+    ESCALATE: 'Act soon',
+  }
+  return labels[label] ?? label.replace('_', ' ')
+}
+
+function formatNeedLevel(value: number, timeStatus?: string) {
+  if (timeStatus === 'BREACHED') return 'High'
+  if (timeStatus === 'AT_RISK' && value < 40) return 'Medium'
+  if (value >= 70) return 'High'
+  if (value >= 40) return 'Medium'
+  return 'Low'
+}
+
+function displayProblemTitle(title: string) {
+  return title.replace(/\bissue\b/gi, 'problem')
+}
+
+function displayAction(action: string) {
+  return action.replace(/\bissues\b/gi, 'problems').replace(/\bissue\b/gi, 'problem')
+}
+
+function formatUrgency(urgency: string) {
+  const labels: Record<string, string> = {
+    LOW: 'Low',
+    MEDIUM: 'Medium',
+    HIGH: 'High',
+    CRITICAL: 'Urgent',
+  }
+  return labels[urgency] ?? urgency.replaceAll('_', ' ').toLowerCase()
+}
+
+function formatEventType(eventType: string) {
+  const labels: Record<string, string> = {
+    issue_created: 'Problem created',
+    complaint_added: 'Student report added',
+    status_changed: 'Progress changed',
+  }
+  return labels[eventType] ?? eventType.replaceAll('_', ' ')
 }
 
 function formatEventStatus(status: string) {
@@ -261,15 +307,21 @@ function Metric({ icon, label, value, caption }: { icon: ReactNode; label: strin
 }
 
 function formatSlaValue(minutes: number) {
+  const absoluteMinutes = Math.abs(minutes)
+  if (absoluteMinutes >= 60) {
+    const hours = Math.floor(absoluteMinutes / 60)
+    const rest = absoluteMinutes % 60
+    return rest ? `${hours}h ${rest}m` : `${hours}h`
+  }
   if (minutes < 0) {
-    return `${Math.abs(minutes)}m`
+    return `${absoluteMinutes}m`
   }
   return `${minutes}m`
 }
 
 function IssueDetailSkeleton() {
   return (
-    <div className="loading-stack" aria-live="polite" aria-label="Loading issue">
+    <div className="loading-stack" aria-live="polite" aria-label="Loading problem">
       <div className="skeleton-panel hero-skeleton" />
       <div className="skeleton-grid">
         <span />

@@ -3,11 +3,9 @@ import type { ReactNode } from 'react'
 import { Link } from 'react-router-dom'
 import {
   Activity,
-  AlertTriangle,
   Building2,
   Clock3,
   ClipboardList,
-  Gauge,
   Layers3,
   MapPin,
   RefreshCw,
@@ -18,7 +16,7 @@ import {
 } from 'lucide-react'
 
 import { api } from '../api/client'
-import type { DashboardSummary, IssueStatus } from '../api/types'
+import type { DashboardSummary, IssueStatus, IssueSummary } from '../api/types'
 import { AppShell } from '../components/AppShell'
 import { StatusBadge } from '../components/StatusBadge'
 import { formatDateTime } from '../utils/time'
@@ -42,7 +40,7 @@ export default function AdminDashboard() {
     try {
       setDashboard(await api.dashboard())
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'Unable to load dashboard')
+      setError(err instanceof Error ? err.message : 'Unable to load staff board')
     } finally {
       setIsLoading(false)
     }
@@ -55,32 +53,34 @@ export default function AdminDashboard() {
   const filteredIssues = useMemo(() => {
     if (!dashboard) return []
     const searchTerm = search.trim().toLowerCase()
-    return dashboard.issues.filter((issue) => {
-      const matchesStatus = status === 'ALL' || issue.status === status
-      const matchesHostel = hostelFilter === 'ALL' || issue.hostel === hostelFilter
-      const matchesCategory = categoryFilter === 'ALL' || issue.category === categoryFilter
-      const matchesSla = slaFilter === 'ALL' || issue.intelligence.sla_status === slaFilter
-      const matchesPriority =
-        priorityFilter === 'ALL' ||
-        (priorityFilter === 'HIGH' && issue.priority_score >= 70) ||
-        (priorityFilter === 'MEDIUM' && issue.priority_score >= 40 && issue.priority_score < 70) ||
-        (priorityFilter === 'LOW' && issue.priority_score < 40)
-      const matchesSearch =
-        !searchTerm ||
-        [
-          issue.title,
-          issue.hostel,
-          issue.category,
-          issue.status,
-          issue.intelligence.sla_status,
-          issue.intelligence.recommended_action,
-          `ISS-${issue.id.slice(0, 8)}`,
-        ]
-          .join(' ')
-          .toLowerCase()
-          .includes(searchTerm)
-      return matchesStatus && matchesHostel && matchesCategory && matchesSla && matchesPriority && matchesSearch
-    })
+    return dashboard.issues
+      .filter((issue) => {
+        const matchesStatus = status === 'ALL' || issue.status === status
+        const matchesHostel = hostelFilter === 'ALL' || issue.hostel === hostelFilter
+        const matchesCategory = categoryFilter === 'ALL' || issue.category === categoryFilter
+        const matchesSla = slaFilter === 'ALL' || issue.intelligence.sla_status === slaFilter
+        const displayedNeed = formatNeedLevel(issue.priority_score, issue.intelligence.sla_status)
+        const matchesPriority =
+          priorityFilter === 'ALL' ||
+          (priorityFilter === 'HIGH' && displayedNeed === 'High') ||
+          (priorityFilter === 'MEDIUM' && displayedNeed === 'Medium') ||
+          (priorityFilter === 'LOW' && displayedNeed === 'Low')
+        const matchesSearch =
+          !searchTerm ||
+          [
+            issue.title,
+            issue.hostel,
+            issue.category,
+            issue.status,
+            issue.intelligence.sla_status,
+            issue.intelligence.recommended_action,
+          ]
+            .join(' ')
+            .toLowerCase()
+            .includes(searchTerm)
+        return matchesStatus && matchesHostel && matchesCategory && matchesSla && matchesPriority && matchesSearch
+      })
+      .sort(sortProblemsForStaff)
   }, [categoryFilter, dashboard, hostelFilter, priorityFilter, search, slaFilter, status])
 
   const hostelOptions = useMemo(() => Object.keys(dashboard?.hostel_breakdown ?? {}).sort(), [dashboard])
@@ -91,9 +91,9 @@ export default function AdminDashboard() {
   const topIssue = attentionIssues[0]
   const groupedCount = dashboard ? Math.max(0, dashboard.complaints_total - dashboard.issues.length) : 0
   const topHostel = dashboard ? topBreakdownEntry(dashboard.hostel_breakdown) : null
-  const topCategory = dashboard ? topBreakdownEntry(dashboard.category_breakdown) : null
   const breachedCount = dashboard?.sla_breakdown.BREACHED ?? 0
   const atRiskCount = dashboard?.sla_breakdown.AT_RISK ?? 0
+  const needsAttentionCount = dashboard ? Math.max(dashboard.critical_issues, breachedCount + atRiskCount) : 0
   const avgRisk =
     dashboard && dashboard.issues.length > 0
       ? Math.round(dashboard.issues.reduce((total, issue) => total + issue.priority_score, 0) / dashboard.issues.length)
@@ -112,16 +112,16 @@ export default function AdminDashboard() {
       <div className="ops-page">
         <section className="command-board">
           <div className="command-copy">
-            <h1>Hostel problem dashboard</h1>
+            <h1>Hostel staff board</h1>
             <p className="muted hero-copy">
               See what needs attention first, where students are affected, and what action should happen next.
             </p>
             
-            <div className="command-telemetry" aria-label="Dashboard summary">
-              <Telemetry label="View" value={commandMode} />
-              <Telemetry label="Avg priority" value={avgRisk} />
-              <Telemetry label="Combined" value={`${groupedRate}%`} />
-              <Telemetry label="Time alerts" value={breachedCount > 0 ? `${breachedCount} late` : `${atRiskCount} due soon`} />
+            <div className="command-telemetry" aria-label="Staff board summary">
+              <Telemetry label="Board" value={commandMode} />
+              <Telemetry label="Usual need" value={formatNeedLevel(avgRisk)} />
+              <Telemetry label="Same problem reports" value={`${groupedRate}%`} />
+              <Telemetry label="Time" value={breachedCount > 0 ? `${breachedCount} late` : `${atRiskCount} due soon`} />
             </div>
           </div>
 
@@ -129,22 +129,21 @@ export default function AdminDashboard() {
             <div className="section-heading compact">
               <div>
                 <p className="eyebrow">Needs attention first</p>
-                <h2>{topIssue ? topIssue.title : 'No active issue'}</h2>
+                <h2>{topIssue ? displayProblemTitle(topIssue.title) : 'No active problem'}</h2>
               </div>
-              {topIssue && <RiskRing value={topIssue.priority_score} />}
+              {topIssue && <NeedPill timeStatus={topIssue.intelligence.sla_status} value={topIssue.priority_score} />}
             </div>
             <p className="muted">
-              {topIssue ? topIssue.intelligence.recommended_action : 'Nothing is waiting right now. New student complaints will appear here.'}
+              {topIssue ? displayAction(topIssue.intelligence.recommended_action) : 'Nothing is waiting right now. New student reports will appear here.'}
             </p>
             <div className="directive-meta">
               <span>{topIssue ? topIssue.hostel : 'No active hostel'}</span>
-              <span>{topIssue ? topIssue.category : 'No active category'}</span>
+              <span>{topIssue ? topIssue.category : 'No active type'}</span>
               <span>{topIssue ? formatTimeStatus(topIssue.intelligence.sla_status) : 'Stable'}</span>
             </div>
             <div className="hero-actions">
               <span className="runtime-pill">
-                <Gauge aria-hidden="true" />
-                Sorted by priority
+                Most urgent first
               </span>
               <button className="secondary-button" type="button" onClick={() => void load()}>
                 <RefreshCw aria-hidden="true" />
@@ -159,8 +158,8 @@ export default function AdminDashboard() {
 
         {dashboard && (
           <>
-            <section className="signal-strip" aria-label="Dashboard summary">
-              <SignalTile icon={<ShieldAlert />} label="Needs attention" value={`${dashboard.critical_issues} critical`} tone="red" />
+            <section className="signal-strip" aria-label="Staff board summary">
+              <SignalTile icon={<ShieldAlert />} label="Needs attention" value={`${needsAttentionCount} to check`} tone="red" />
               <SignalTile icon={<Clock3 />} label="Late problems" value={`${breachedCount} late`} tone="amber" />
               <SignalTile icon={<Clock3 />} label="Due soon" value={`${atRiskCount} due soon`} tone="blue" />
               <SignalTile
@@ -181,12 +180,12 @@ export default function AdminDashboard() {
               <div className="section-heading">
                 <div>
                   <p className="eyebrow">Problems to handle today</p>
-                  <h2>Student complaints sorted by priority</h2>
+                  <h2>Student reports needing staff attention</h2>
                   <p className="muted queue-summary">
                     Showing {filteredIssues.length} of {dashboard.issues.length} problem{dashboard.issues.length === 1 ? '' : 's'}.
                   </p>
                 </div>
-                <div className="status-tabs" role="tablist" aria-label="Filter issues by status">
+                <div className="status-tabs" role="tablist" aria-label="Filter problems by status">
                   {STATUSES.map((value) => (
                     <button
                       aria-selected={status === value}
@@ -202,14 +201,14 @@ export default function AdminDashboard() {
                 </div>
               </div>
 
-              <div className="filter-bar" aria-label="Issue filters">
+              <div className="filter-bar" aria-label="Problem filters">
                 <label className="filter-field search-field" htmlFor="issue-search">
                   <Search aria-hidden="true" />
                   <input
                     id="issue-search"
                     value={search}
                     onChange={(event) => setSearch(event.target.value)}
-                    placeholder="Search problem, hostel, action, ID..."
+                    placeholder="Search problem, hostel, or next step..."
                   />
                 </label>
                 <label className="filter-field" htmlFor="hostel-filter">
@@ -224,7 +223,7 @@ export default function AdminDashboard() {
                   </select>
                 </label>
                 <label className="filter-field" htmlFor="category-filter">
-                  <span>Category</span>
+                  <span>Type</span>
                   <select
                     id="category-filter"
                     value={categoryFilter}
@@ -250,7 +249,7 @@ export default function AdminDashboard() {
                   </select>
                 </label>
                 <label className="filter-field" htmlFor="priority-filter">
-                  <span>Priority</span>
+                  <span>Need</span>
                   <select
                     id="priority-filter"
                     value={priorityFilter}
@@ -283,7 +282,7 @@ export default function AdminDashboard() {
                 {filteredIssues.length === 0 && (
                   <div className="empty-state">
                     <ClipboardList aria-hidden="true" />
-                    <p>No issues match this filter.</p>
+                    <p>No problems match this filter.</p>
                   </div>
                 )}
                 {filteredIssues.map((issue) => (
@@ -291,8 +290,7 @@ export default function AdminDashboard() {
                     <div className="issue-main">
                       <div className="issue-title-line">
                         <div>
-                          <code>ISS-{issue.id.slice(0, 8)}</code>
-                          <strong>{issue.title}</strong>
+                          <strong>{displayProblemTitle(issue.title)}</strong>
                         </div>
                         <StatusBadge status={issue.status} />
                       </div>
@@ -304,10 +302,10 @@ export default function AdminDashboard() {
                         <span>{issue.category}</span>
                         <span>{formatDateTime(issue.last_complaint_at)}</span>
                       </div>
-                      <p>{issue.intelligence.recommended_action}</p>
+                      <p>{displayAction(issue.intelligence.recommended_action)}</p>
                     </div>
                     <div className="issue-scoreboard">
-                      <RiskRing value={issue.priority_score} />
+                      <NeedPill timeStatus={issue.intelligence.sla_status} value={issue.priority_score} />
                       <span className={`sla-chip sla-${issue.intelligence.sla_status.toLowerCase()}`}>
                         {formatTimeStatus(issue.intelligence.sla_status)}
                       </span>
@@ -320,14 +318,14 @@ export default function AdminDashboard() {
 
             <section className="metric-grid premium">
               <Metric icon={<Activity />} label="Open" value={dashboard.total_open} tone="blue" caption="Problems waiting" />
-              <Metric icon={<ShieldAlert />} label="Critical" value={dashboard.critical_issues} tone="red" caption="Needs urgent review" />
-              <Metric icon={<Users />} label="Complaints" value={dashboard.complaints_total} tone="green" caption="Real student reports" />
+              <Metric icon={<ShieldAlert />} label="To check" value={needsAttentionCount} tone="red" caption="Needs quick review" />
+              <Metric icon={<Users />} label="Reports" value={dashboard.complaints_total} tone="green" caption="From students" />
               <Metric
                 icon={<Layers3 />}
-                label="Combined"
+                label="Repeated"
                 value={groupedCount}
                 tone="amber"
-                caption="Reports joined together"
+                caption="Reports about existing problems"
               />
             </section>
 
@@ -340,21 +338,20 @@ export default function AdminDashboard() {
               </div>
               <div className="surface">
                 <div className="section-heading compact">
-                  <h2>Category mix</h2>
+                  <h2>Problem types</h2>
                 </div>
                 <Breakdown data={dashboard.category_breakdown} />
               </div>
               <div className="surface spotlight">
                 <div className="section-heading compact">
                   <h2>Suggested next step</h2>
-                  <AlertTriangle aria-hidden="true" />
                 </div>
                 {topIssue ? (
                   <>
-                    <p className="spotlight-title">{topIssue.title}</p>
-                    <p className="muted">{topIssue.intelligence.recommended_action}</p>
+                    <p className="spotlight-title">{displayProblemTitle(topIssue.title)}</p>
+                    <p className="muted">{displayAction(topIssue.intelligence.recommended_action)}</p>
                     <Link className="secondary-button" to={`/admin/issues/${topIssue.id}`}>
-                      Open issue
+                      Open problem
                     </Link>
                   </>
                 ) : (
@@ -363,13 +360,12 @@ export default function AdminDashboard() {
               </div>
               <div className="surface hostel-pulse">
                 <div className="section-heading compact">
-                  <h2>Hostel pressure</h2>
-                  <MapPin aria-hidden="true" />
+                  <h2>Hostel load</h2>
                 </div>
                 {topHostel ? (
                   <div className="pulse-readout">
                     <strong>{topHostel[0]}</strong>
-                    <span>{topHostel[1]} active issue{topHostel[1] === 1 ? '' : 's'}</span>
+                    <span>{topHostel[1]} active problem{topHostel[1] === 1 ? '' : 's'}</span>
                   </div>
                 ) : (
                   <p className="muted">No hostel pressure yet.</p>
@@ -465,21 +461,14 @@ function Breakdown({
   )
 }
 
-function RiskRing({ value }: { value: number }) {
-  const clamped = Math.max(0, Math.min(100, value))
-  return (
-    <div className="risk-meter">
-      <strong>{Math.round(clamped)}</strong>
-      <span>
-        <i style={{ width: `${clamped}%` }} />
-      </span>
-    </div>
-  )
+function NeedPill({ value, timeStatus }: { value: number; timeStatus?: string }) {
+  const label = formatNeedLevel(value, timeStatus)
+  return <span className={`need-pill need-${label.toLowerCase()}`}>{label}</span>
 }
 
 function DashboardSkeleton() {
   return (
-    <div className="loading-stack" aria-live="polite" aria-label="Loading dashboard">
+    <div className="loading-stack" aria-live="polite" aria-label="Loading staff board">
       <div className="skeleton-grid">
         <span />
         <span />
@@ -493,6 +482,39 @@ function DashboardSkeleton() {
 
 function topBreakdownEntry(data: Record<string, number>) {
   return Object.entries(data).sort((a, b) => b[1] - a[1])[0] ?? null
+}
+
+function displayProblemTitle(title: string) {
+  return title.replace(/\bissue\b/gi, 'problem')
+}
+
+function displayAction(action: string) {
+  return action.replace(/\bissues\b/gi, 'problems').replace(/\bissue\b/gi, 'problem')
+}
+
+function formatNeedLevel(value: number, timeStatus?: string) {
+  if (timeStatus === 'BREACHED') return 'High'
+  if (timeStatus === 'AT_RISK' && value < 40) return 'Medium'
+  if (value >= 70) return 'High'
+  if (value >= 40) return 'Medium'
+  return 'Low'
+}
+
+function sortProblemsForStaff(a: IssueSummary, b: IssueSummary) {
+  const statusWeight = (issue: IssueSummary) => (issue.status === 'RESOLVED' ? 1 : 0)
+  const timeWeight = (issue: IssueSummary) => {
+    if (issue.intelligence.sla_status === 'BREACHED') return 0
+    if (issue.intelligence.sla_status === 'AT_RISK') return 1
+    if (issue.intelligence.sla_status === 'ON_TRACK') return 2
+    return 3
+  }
+  const byStatus = statusWeight(a) - statusWeight(b)
+  if (byStatus !== 0) return byStatus
+  const byTime = timeWeight(a) - timeWeight(b)
+  if (byTime !== 0) return byTime
+  const byNeed = b.priority_score - a.priority_score
+  if (byNeed !== 0) return byNeed
+  return new Date(b.last_complaint_at ?? b.created_at).getTime() - new Date(a.last_complaint_at ?? a.created_at).getTime()
 }
 
 function formatStatusTab(status: IssueStatus | 'ALL') {

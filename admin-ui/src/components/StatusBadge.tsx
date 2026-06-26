@@ -3,7 +3,7 @@ import type { IssueStatus } from '../api/types'
 export function StatusBadge({ status }: { status: IssueStatus | string }) {
   const label = statusLabel(status)
   return (
-    <span aria-label={`Status ${label}`} className={`status status-${status.toLowerCase()}`}>
+    <span aria-label={`Progress ${label}`} className={`status status-${status.toLowerCase()}`}>
       {label}
     </span>
   )

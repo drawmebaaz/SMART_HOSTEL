@@ -1,4 +1,4 @@
-import { Activity, ClipboardList, LogOut, ShieldCheck } from 'lucide-react'
+import { LogOut } from 'lucide-react'
 import { Link, NavLink, useNavigate } from 'react-router-dom'
 
 import { useAuth } from '../auth/AuthContext'
@@ -19,11 +19,23 @@ export function AppShell({ children }: { children: React.ReactNode }) {
           <Link to={user?.role === 'ADMIN' ? '/admin' : '/student'} className="brand">
             <span>
               <strong>Smart Hostel</strong>
+              <small>Hostel help desk</small>
             </span>
           </Link>
+          <nav className="nav" aria-label="Primary navigation">
+            {user?.role === 'ADMIN' ? (
+              <NavLink to="/admin">
+                Staff board
+              </NavLink>
+            ) : (
+              <NavLink to="/student">
+                My reports
+              </NavLink>
+            )}
+          </nav>
           <div className="account">
-            <ShieldCheck aria-hidden="true" />
             <span>{user?.name}</span>
+            <small>{user?.role === 'ADMIN' ? 'Staff' : 'Student'}</small>
             <button className="icon-button" type="button" onClick={handleLogout} aria-label="Log out">
               <LogOut aria-hidden="true" />
             </button>
