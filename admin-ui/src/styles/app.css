@@ -636,6 +636,37 @@ textarea::placeholder {
   color: #9aa6b4;
 }
 
+.password-field {
+  position: relative;
+}
+
+.password-field input {
+  padding-right: 46px;
+}
+
+.password-toggle {
+  position: absolute;
+  top: 50%;
+  right: 8px;
+  display: grid;
+  width: 34px;
+  height: 34px;
+  place-items: center;
+  transform: translateY(-50%);
+  border: 0;
+  border-radius: 7px;
+  background: transparent;
+  color: var(--dim);
+  transition:
+    background 140ms ease,
+    color 140ms ease;
+}
+
+.password-toggle:hover {
+  background: var(--panel-muted);
+  color: var(--text);
+}
+
 .primary-button,
 .secondary-button,
 .icon-button,
@@ -878,6 +909,7 @@ textarea::placeholder {
 }
 
 .status-tabs {
+  position: relative;
   display: flex;
   flex-wrap: wrap;
   gap: 18px;
@@ -896,9 +928,28 @@ textarea::placeholder {
 }
 
 .status-tabs button.active {
-  border-bottom-color: var(--blue);
+  border-bottom-color: transparent;
   background: transparent;
   color: var(--blue);
+}
+
+.status-tabs button:hover {
+  background: transparent;
+  color: var(--blue);
+}
+
+.status-tab-indicator {
+  position: absolute;
+  bottom: -1px;
+  left: 0;
+  height: 2px;
+  background: var(--blue);
+  pointer-events: none;
+  transition:
+    transform 180ms ease,
+    width 180ms ease,
+    opacity 120ms ease;
+  will-change: transform, width;
 }
 
 .issue-row {

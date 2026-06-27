@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from 'react'
+import { useEffect, useLayoutEffect, useMemo, useRef, useState } from 'react'
 import { Link } from 'react-router-dom'
 import {
   Building2,
@@ -25,6 +25,9 @@ export default function AdminDashboard() {
   const [priorityFilter, setPriorityFilter] = useState('ALL')
   const [error, setError] = useState('')
   const [isLoading, setIsLoading] = useState(true)
+  const statusTabsRef = useRef<HTMLDivElement | null>(null)
+  const statusTabRefs = useRef<Record<string, HTMLButtonElement | null>>({})
+  const [tabIndicator, setTabIndicator] = useState({ left: 0, width: 0 })
 
   const load = async () => {
     setIsLoading(true)
@@ -41,6 +44,25 @@ export default function AdminDashboard() {
   useEffect(() => {
     void load()
   }, [])
+
+  useLayoutEffect(() => {
+    const updateIndicator = () => {
+      const activeTab = statusTabRefs.current[status]
+      const tabList = statusTabsRef.current
+      if (!activeTab || !tabList) return
+
+      const activeRect = activeTab.getBoundingClientRect()
+      const listRect = tabList.getBoundingClientRect()
+      setTabIndicator({
+        left: activeRect.left - listRect.left,
+        width: activeRect.width,
+      })
+    }
+
+    updateIndicator()
+    window.addEventListener('resize', updateIndicator)
+    return () => window.removeEventListener('resize', updateIndicator)
+  }, [dashboard, status])
 
   const filteredIssues = useMemo(() => {
     if (!dashboard) return []
@@ -143,13 +165,25 @@ export default function AdminDashboard() {
                     Showing {filteredIssues.length} of {dashboard.issues.length} problem{dashboard.issues.length === 1 ? '' : 's'}.
                   </p>
                 </div>
-                <div className="status-tabs" role="tablist" aria-label="Filter problems by status">
+                <div className="status-tabs" ref={statusTabsRef} role="tablist" aria-label="Filter problems by status">
+                  <span
+                    aria-hidden="true"
+                    className="status-tab-indicator"
+                    style={{
+                      opacity: tabIndicator.width > 0 ? 1 : 0,
+                      transform: `translateX(${tabIndicator.left}px)`,
+                      width: `${tabIndicator.width}px`,
+                    }}
+                  />
                   {STATUSES.map((value) => (
                     <button
                       aria-selected={status === value}
                       className={status === value ? 'active' : ''}
                       key={value}
                       onClick={() => setStatus(value)}
+                      ref={(node) => {
+                        statusTabRefs.current[value] = node
+                      }}
                       role="tab"
                       type="button"
                     >

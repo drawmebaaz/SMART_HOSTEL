@@ -1,6 +1,6 @@
 import { FormEvent, useState } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
-import { ArrowRight, Fingerprint, LogIn } from 'lucide-react'
+import { ArrowRight, Eye, EyeOff, Fingerprint, LogIn } from 'lucide-react'
 
 import { oauthProvider, oauthStartUrl } from '../api/client'
 import { useAuth } from '../auth/AuthContext'
@@ -10,6 +10,7 @@ export default function LoginPage() {
   const navigate = useNavigate()
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
+  const [showPassword, setShowPassword] = useState(false)
   const [error, setError] = useState('')
   const [isSubmitting, setIsSubmitting] = useState(false)
 
@@ -75,14 +76,25 @@ export default function LoginPage() {
             </label>
             <label htmlFor="login-password">
               Password
-              <input
-                id="login-password"
-                value={password}
-                onChange={(event) => setPassword(event.target.value)}
-                type="password"
-                autoComplete="current-password"
-                required
-              />
+              <div className="password-field">
+                <input
+                  id="login-password"
+                  value={password}
+                  onChange={(event) => setPassword(event.target.value)}
+                  type={showPassword ? 'text' : 'password'}
+                  autoComplete="current-password"
+                  required
+                />
+                <button
+                  aria-label={showPassword ? 'Hide password' : 'Show password'}
+                  aria-pressed={showPassword}
+                  className="password-toggle"
+                  type="button"
+                  onClick={() => setShowPassword((current) => !current)}
+                >
+                  {showPassword ? <EyeOff aria-hidden="true" /> : <Eye aria-hidden="true" />}
+                </button>
+              </div>
             </label>
             {error && <p className="form-error">{error}</p>}
             <button className="primary-button" type="submit" disabled={isSubmitting}>
