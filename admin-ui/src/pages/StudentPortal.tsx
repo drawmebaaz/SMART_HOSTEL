@@ -122,7 +122,7 @@ export default function StudentPortal() {
                       setContext((current) => ({ ...current, location: event.target.value }))
                     }
                     maxLength={120}
-                    placeholder="Room 214, 2nd floor washroom, mess counter..."
+                    placeholder="Room 214, 2nd floor..."
                   />
                 </label>
               </section>
@@ -142,7 +142,7 @@ export default function StudentPortal() {
                     minLength={5}
                     maxLength={2000}
                     rows={8}
-                    placeholder="Example: Paani nahi aa raha in BH-3 washroom since morning"
+                    placeholder="Example: Paani nahi aa raha since morning"
                     required
                   />
                 </label>

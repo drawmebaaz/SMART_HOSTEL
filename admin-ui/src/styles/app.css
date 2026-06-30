@@ -1526,72 +1526,6 @@ textarea::placeholder {
   }
 }
 
-@media (max-width: 620px) {
-  .page {
-    width: min(100% - 20px, 1240px);
-    padding-top: 16px;
-  }
-
-  .auth-page {
-    padding: 16px;
-  }
-
-  .auth-minimal-panel,
-  .auth-panel,
-  .surface,
-  .command-copy,
-  .directive-panel,
-  .student-intro,
-  .detail-hero {
-    padding: 16px;
-  }
-
-  .topbar-inner {
-    grid-template-columns: 1fr;
-    padding: 12px 0;
-  }
-
-  .nav,
-  .account {
-    justify-self: start;
-  }
-
-  .account span {
-    max-width: 150px;
-  }
-
-  .skeleton-grid {
-    grid-template-columns: 1fr;
-  }
-
-  .detail-facts {
-    grid-template-columns: 1fr;
-  }
-
-  .section-heading {
-    display: grid;
-  }
-
-  .status-tabs button {
-    flex: 1 1 auto;
-  }
-
-  h1,
-  .command-board h1,
-  .auth-minimal-panel h1 {
-    font-size: 1.72rem;
-  }
-
-  .auth-panel h2 {
-    font-size: 1.58rem;
-  }
-
-  .complaint-card-footer {
-    align-items: flex-start;
-    flex-direction: column;
-  }
-}
-
 @media (max-width: 1080px) {
   .page {
     width: min(100% - 40px, 900px);
@@ -1706,6 +1640,7 @@ textarea::placeholder {
 
   .page {
     width: 100%;
+    max-width: 100vw;
     padding: 0 0 32px;
   }
 
@@ -1717,6 +1652,7 @@ textarea::placeholder {
 
   .topbar-inner {
     width: 100%;
+    max-width: 100vw;
     grid-template-columns: auto minmax(0, 1fr) auto;
     gap: 9px 12px;
     min-height: 60px;
@@ -1750,6 +1686,7 @@ textarea::placeholder {
   .auth-layout,
   .auth-layout.compact-auth {
     width: 100%;
+    max-width: 100vw;
     min-height: auto;
     border: 0;
     border-radius: 0;
@@ -1896,6 +1833,8 @@ textarea::placeholder {
   }
 
   .report-section {
+    width: 100%;
+    max-width: 100%;
     border: 1px solid var(--line);
     border-radius: var(--radius-sm);
     padding: 14px;
@@ -2015,8 +1954,18 @@ textarea::placeholder {
   input,
   select,
   textarea {
+    display: block;
+    max-width: 100%;
     min-height: 44px;
     font-size: 0.95rem;
+  }
+
+  .password-field {
+    max-width: 100%;
+  }
+
+  .password-field input {
+    max-width: 100%;
   }
 
   .issue-list {
