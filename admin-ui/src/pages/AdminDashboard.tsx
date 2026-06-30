@@ -115,20 +115,22 @@ export default function AdminDashboard() {
   return (
     <AppShell>
       <div className="ops-page">
-        <section className="command-board">
-          <div className="command-copy">
+        <section className="student-intro admin-intro">
+          <div>
+            <p className="eyebrow">Staff board</p>
             <h1>Hostel staff board</h1>
             <p className="muted hero-copy">
               See what needs attention first, where students are affected, and what action should happen next.
             </p>
-
             <p className="board-summary-line" aria-label="Staff board summary">
               {commandMode} / {needsAttentionCount} to check / {breachedCount > 0 ? `${breachedCount} late` : `${atRiskCount} due soon`}
               {topHostel ? ` / Most reports from ${topHostel[0]}` : ''} / {dashboard?.complaints_total ?? 0} student reports
             </p>
           </div>
+        </section>
 
-          <aside className="directive-panel" aria-label="Top problem">
+        <section className="surface attention-strip" aria-label="Top problem">
+          <div>
             <div className="section-heading compact">
               <div>
                 <p className="eyebrow">Needs attention first</p>
@@ -142,13 +144,11 @@ export default function AdminDashboard() {
             <div className="directive-meta">
               {topIssue ? `${topIssue.hostel} / ${topIssue.category} / ${formatTimeStatus(topIssue.intelligence.sla_status)}` : 'No active hostel'}
             </div>
-            <div className="hero-actions">
-              <button className="secondary-button" type="button" onClick={() => void load()}>
-                <RefreshCw aria-hidden="true" />
-                Refresh
-              </button>
-            </div>
-          </aside>
+          </div>
+          <button className="secondary-button compact-refresh" type="button" onClick={() => void load()}>
+            <RefreshCw aria-hidden="true" />
+            Refresh
+          </button>
         </section>
 
         {error && <p className="form-error">{error}</p>}
