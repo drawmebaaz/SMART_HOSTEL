@@ -73,12 +73,6 @@ Hostel staff can:
 4. Staff opens a problem to review all related student reports.
 5. Staff updates progress and adds a short note.
 
-## Development Blog
-
-Read the build story, problems faced, errors encountered, and fixes here:
-
-[Building Smart Hostel Grievance: Problems Faced And How I Solved Them](docs/development-blog.md)
-
 ## Tech Stack
 
 App server:

@@ -41,8 +41,10 @@
 html,
 body,
 #root {
+  width: 100%;
   min-width: 320px;
   min-height: 100%;
+  overflow-x: hidden;
 }
 
 body {
@@ -51,6 +53,10 @@ body {
   overflow-x: hidden;
   background: var(--bg);
   color: var(--text);
+}
+
+.app-shell {
+  overflow-x: hidden;
 }
 
 a {
@@ -103,6 +109,8 @@ code {
 
 .page {
   width: min(1240px, calc(100% - 32px));
+  max-width: 100%;
+  overflow-x: hidden;
   margin: 0 auto;
   padding: 22px 0 42px;
 }
@@ -118,6 +126,14 @@ code {
 .issue-list {
   display: grid;
   gap: 14px;
+}
+
+.ops-page,
+.student-page,
+.detail-page {
+  width: 100%;
+  max-width: 100%;
+  overflow-x: hidden;
 }
 
 .screen-center {
@@ -332,10 +348,11 @@ button svg,
   border-right: 1px solid var(--line);
   background: #ffffff;
   box-shadow: 18px 0 42px rgb(15 23 42 / 0.18);
-  transform: translateX(-102%);
+  left: -420px;
+  transform: translateX(0);
   visibility: hidden;
   transition:
-    transform 220ms ease,
+    left 220ms ease,
     visibility 0s linear 220ms;
 }
 
@@ -593,6 +610,10 @@ body.nav-drawer-open {
   margin: 8px 0 0;
   color: #526174;
   font-weight: 650;
+}
+
+.detail-status-wrap {
+  justify-self: end;
 }
 
 .detail-facts {
@@ -1602,10 +1623,10 @@ textarea::placeholder {
   }
 
   .side-nav.open {
-    transform: translateX(0);
+    left: 0;
     visibility: visible;
     transition:
-      transform 220ms ease,
+      left 220ms ease,
       visibility 0s;
   }
 
@@ -1711,12 +1732,7 @@ textarea::placeholder {
   }
 
   .account {
-    gap: 7px;
-  }
-
-  .account span {
-    max-width: 112px;
-    font-size: 0.82rem;
+    display: none;
   }
 
   .icon-button {
@@ -1734,15 +1750,18 @@ textarea::placeholder {
   .auth-layout,
   .auth-layout.compact-auth {
     width: 100%;
-    min-height: 100vh;
+    min-height: auto;
     border: 0;
     border-radius: 0;
     box-shadow: none;
   }
 
   .auth-minimal-panel {
+    display: grid;
+    align-content: start;
+    gap: 10px;
     min-height: auto;
-    padding: 24px 18px 18px;
+    padding: 24px 18px 20px;
     background: #eef2f5;
   }
 
@@ -1785,6 +1804,64 @@ textarea::placeholder {
     border-left: 0;
     border-radius: 0;
     box-shadow: none;
+  }
+
+  .topbar-inner,
+  .brand,
+  .student-intro,
+  .detail-hero,
+  .surface,
+  .command-copy,
+  .directive-panel,
+  .workspace-grid,
+  .report-section,
+  .issue-row,
+  .issue-main,
+  .issue-title-line,
+  .issue-scoreboard,
+  .evidence-item,
+  .complaint-card,
+  .complaint-card-header,
+  .section-heading,
+  .filter-bar,
+  .form-stack,
+  label {
+    min-width: 0;
+  }
+
+  .student-intro *,
+  .detail-hero *,
+  .command-board *,
+  .surface *,
+  .issue-row *,
+  .evidence-item *,
+  .complaint-card *,
+  .filter-bar * {
+    max-width: 100%;
+  }
+
+  .hero-copy,
+  .board-summary-line,
+  .muted,
+  .issue-main p,
+  .evidence-item p,
+  .complaint-text,
+  .directive-meta,
+  .detail-subline,
+  .evidence-context span,
+  .complaint-location,
+  h1,
+  h2,
+  h3,
+  strong {
+    overflow-wrap: anywhere;
+  }
+
+  .hero-copy,
+  .board-summary-line,
+  .directive-panel p,
+  .detail-subline {
+    width: min(100%, calc(100vw - 44px));
   }
 
   .student-intro,
@@ -1904,6 +1981,10 @@ textarea::placeholder {
     display: flex;
   }
 
+  .directive-panel .section-heading.compact {
+    display: grid;
+  }
+
   .status-tabs {
     width: 100%;
     gap: 20px;
@@ -1978,6 +2059,37 @@ textarea::placeholder {
     border-radius: var(--radius-sm);
   }
 
+  .detail-status-wrap {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    justify-self: start;
+    width: 100%;
+    border-top: 1px solid var(--line-soft);
+    padding-top: 12px;
+  }
+
+  .detail-status-wrap::before {
+    color: var(--muted);
+    font-size: 0.72rem;
+    font-weight: 760;
+    text-transform: uppercase;
+    content: "Progress";
+  }
+
+  .detail-status-wrap .status {
+    width: fit-content;
+  }
+
+  .work-update-panel {
+    order: 1;
+  }
+
+  .evidence-panel {
+    order: 2;
+  }
+
   .detail-facts div {
     padding: 12px;
   }
@@ -2028,8 +2140,8 @@ textarea::placeholder {
   .surface,
   .command-copy,
   .directive-panel {
-    padding-right: 14px;
-    padding-left: 14px;
+    padding-right: 18px;
+    padding-left: 18px;
   }
 
   .side-nav {

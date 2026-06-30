@@ -83,11 +83,13 @@ export default function IssueDetailPage() {
                   </div>
                 </dl>
               </div>
-              <StatusBadge status={issue.status} />
+              <div className="detail-status-wrap">
+                <StatusBadge status={issue.status} />
+              </div>
             </section>
 
             <section className="workspace-grid">
-              <div className="surface wide">
+              <div className="surface wide evidence-panel">
                 <div className="section-heading compact">
                   <h2>Student reports</h2>
                 </div>
@@ -115,7 +117,7 @@ export default function IssueDetailPage() {
                 </div>
               </div>
 
-              <aside className="surface">
+              <aside className="surface work-update-panel">
                 <h2>Work update</h2>
                 <form className="form-stack" onSubmit={submit}>
                   <label htmlFor="issue-status">
