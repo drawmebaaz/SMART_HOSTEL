@@ -1,6 +1,6 @@
 import { FormEvent, useState } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
-import { ArrowRight, Eye, EyeOff, Fingerprint, LogIn } from 'lucide-react'
+import { Eye, EyeOff, Fingerprint } from 'lucide-react'
 
 import { oauthProvider, oauthStartUrl } from '../api/client'
 import { useAuth } from '../auth/AuthContext'
@@ -29,40 +29,14 @@ export default function LoginPage() {
   }
 
   return (
-    <main className="auth-page">
-      <section className="auth-layout" aria-label="Smart Hostel Grievance sign in">
-        <div className="auth-intel-panel auth-minimal-panel">
-          <div className="auth-brand-block">
-            <div>
-              <p className="eyebrow">Hostel access</p>
-              <h1>Hostel help desk</h1>
-              <p className="muted">
-                Report hostel problems clearly and help staff resolve the most important problems first.
-              </p>
-            </div>
-          </div>
-
-          <div className="auth-minimal-list">
-            <div>
-              <span>Send reports with hostel, location, and useful details.</span>
-            </div>
-
-            <div>
-              <span>Track whether your problem is new, being fixed, or resolved.</span>
-            </div>
-          </div>
-
-          <p className="auth-note">
-            Built for students and hostel staff.
-          </p>
+    <main className="auth-page auth-reference-page">
+      <section className="auth-card" aria-label="Smart Hostel Grievance sign in">
+        <h1>Login.</h1>
+        <div className="auth-card-copy">
+          <h2>Welcome!</h2>
+          <p>Please sign in to access your account</p>
         </div>
-        <div className="auth-panel">
-          <div>
-            <p className="eyebrow">Welcome back</p>
-            <h2>Sign in</h2>
-            <p className="muted">Use your student or staff account.</p>
-          </div>
-          <form onSubmit={submit} className="form-stack">
+        <form onSubmit={submit} className="auth-card-form">
             <label htmlFor="login-email">
               Email
               <input
@@ -97,25 +71,19 @@ export default function LoginPage() {
               </div>
             </label>
             {error && <p className="form-error">{error}</p>}
-            <button className="primary-button" type="submit" disabled={isSubmitting}>
-              <LogIn aria-hidden="true" />
+            <button className="primary-button auth-submit" type="submit" disabled={isSubmitting}>
               {isSubmitting ? 'Signing in...' : 'Sign in'}
             </button>
-          </form>
-          {oauthStartUrl && (
-            <a className="secondary-button" href={oauthStartUrl}>
-              <Fingerprint aria-hidden="true" />
-              Continue with {oauthProvider}
-            </a>
-          )}
-          <p className="muted auth-switch">
-            New student?{' '}
-            <Link to="/register">
-              Create an account
-              <ArrowRight aria-hidden="true" />
-            </Link>
-          </p>
-        </div>
+        </form>
+        {oauthStartUrl && (
+          <a className="secondary-button auth-oauth-button" href={oauthStartUrl}>
+            <Fingerprint aria-hidden="true" />
+            Continue with {oauthProvider}
+          </a>
+        )}
+        <p className="auth-switch">
+          Don&apos;t have an account yet? <Link to="/register">Create an account</Link>
+        </p>
       </section>
     </main>
   )

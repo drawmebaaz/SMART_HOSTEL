@@ -5,6 +5,7 @@ import AdminDashboard from './pages/AdminDashboard'
 import IssueDetailPage from './pages/IssueDetailPage'
 import LoginPage from './pages/LoginPage'
 import RegisterPage from './pages/RegisterPage'
+import StudentReportsPage from './pages/StudentReportsPage'
 import StudentPortal from './pages/StudentPortal'
 
 export default function App() {
@@ -18,6 +19,14 @@ export default function App() {
         element={
           <ProtectedRoute role="STUDENT">
             <StudentPortal />
+          </ProtectedRoute>
+        }
+      />
+      <Route
+        path="/student/reports"
+        element={
+          <ProtectedRoute role="STUDENT">
+            <StudentReportsPage />
           </ProtectedRoute>
         }
       />

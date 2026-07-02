@@ -10,6 +10,7 @@ env/
 .venv
 
 open.txt
+LOCAL_RUN_GUIDE.md
 
 # JavaScript
 node_modules/

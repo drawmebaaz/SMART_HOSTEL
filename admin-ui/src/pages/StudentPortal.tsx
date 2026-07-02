@@ -1,10 +1,9 @@
 import { FormEvent, useEffect, useMemo, useState } from 'react'
-import { Send } from 'lucide-react'
+import { CheckCircle2, LockKeyhole, MessageSquare, Send } from 'lucide-react'
+import { Link } from 'react-router-dom'
 import { api } from '../api/client'
 import type { Complaint } from '../api/types'
 import { AppShell } from '../components/AppShell'
-import { StatusBadge } from '../components/StatusBadge'
-import { formatDateTime } from '../utils/time'
 
 const HOSTELS = ['BH-1', 'BH-2', 'BH-3', 'BH-4', 'BH-5', 'GH-1', 'GH-2', 'GH-3', 'New Hostel', 'Old Hostel']
 const IMPACT_OPTIONS = ['Only my room', 'Same floor', 'Whole wing', 'Common area', 'Multiple students']
@@ -77,32 +76,64 @@ export default function StudentPortal() {
 
   return (
     <AppShell>
-      <div className="student-page">
-        <section className="student-intro">
-          <div>
-            <p className="eyebrow">Student portal</p>
-            <h1>Report a hostel problem</h1>
-            <p className="muted">
-              Tell the hostel team what happened, where it happened, and who is affected. Your recent reports stay visible here.
-            </p>
-          </div>
-        </section>
-        <section className="workspace-grid">
-          <div className="surface wide submit-panel">
-            <div className="section-heading">
-              <div>
-                <p className="eyebrow">New report</p>
-                <h2>Report details</h2>
-              </div>
-              <span className={`counter ${characterTone}`}>{text.length}/2000</span>
+      <div className="student-page student-reference-page">
+        <section className="student-complaints-strip" aria-label="Complaint summary">
+          <h1>Complaints</h1>
+          {isLoading && <p>Loading your complaints...</p>}
+          {!isLoading && sortedComplaints.length === 0 && <p>No complaints registered yet.</p>}
+          {!isLoading && sortedComplaints.length > 0 && (
+            <div>
+              <p>
+                You have {sortedComplaints.length} complaint{sortedComplaints.length === 1 ? '' : 's'} registered.
+              </p>
+              <Link to="/student/reports">View complaint dashboard</Link>
             </div>
-            <form onSubmit={submit} className="form-stack">
-              <section className="report-section">
+          )}
+        </section>
+
+        <section className="student-submit-layout">
+          <div className="student-copy-block">
+            <p className="student-kicker">Hostel Grievance Redressal</p>
+            <h2>Submit Your Grievance</h2>
+            <p>
+              Tell the hostel team what happened, where it happened, and who is affected. Your report is saved and tracked until the issue moves forward.
+            </p>
+
+            <div className="student-feature-list">
+              <article>
+                <CheckCircle2 aria-hidden="true" />
                 <div>
-                  <span className="step-number">1</span>
-                  <h3>Where is the problem?</h3>
-                  <p className="muted">Choose the hostel and add a specific place if you can.</p>
+                  <h3>Quick problem routing</h3>
+                  <p>Your report is sent with hostel, location, and impact details so staff can act faster.</p>
                 </div>
+              </article>
+              <article>
+                <LockKeyhole aria-hidden="true" />
+                <div>
+                  <h3>Private student record</h3>
+                  <p>Your complaint history remains visible to you after submission.</p>
+                </div>
+              </article>
+              <article>
+                <MessageSquare aria-hidden="true" />
+                <div>
+                  <h3>Clear communication</h3>
+                  <p>Write naturally in English or Hinglish. A short, clear report is enough.</p>
+                </div>
+              </article>
+            </div>
+          </div>
+
+          <div className="student-form-card">
+            <div className="student-form-card-head">
+              <div>
+                <h2>Submit Complaint</h2>
+                <p>Contact us for hostel grievance redressal</p>
+              </div>
+              <span>Quick Response</span>
+            </div>
+            <form onSubmit={submit} className="student-complaint-form">
+              <div className="student-form-grid">
                 <label htmlFor="hostel-select">
                   Hostel
                   <select id="hostel-select" value={hostel} onChange={(event) => setHostel(event.target.value)}>
@@ -114,7 +145,7 @@ export default function StudentPortal() {
                   </select>
                 </label>
                 <label htmlFor="location-detail">
-                  Exact location <small>Optional</small>
+                  Room or exact location
                   <input
                     id="location-detail"
                     value={context.location}
@@ -125,35 +156,6 @@ export default function StudentPortal() {
                     placeholder="Room 214, 2nd floor..."
                   />
                 </label>
-              </section>
-
-              <section className="report-section">
-                <div>
-                  <span className="step-number">2</span>
-                  <h3>What happened?</h3>
-                  <p className="muted">Write naturally in English or Hinglish. A short clear report is enough.</p>
-                </div>
-                <label htmlFor="complaint-text">
-                  What is the problem?
-                  <textarea
-                    id="complaint-text"
-                    value={text}
-                    onChange={(event) => setText(event.target.value)}
-                    minLength={5}
-                    maxLength={2000}
-                    rows={8}
-                    placeholder="Example: Paani nahi aa raha since morning"
-                    required
-                  />
-                </label>
-              </section>
-
-              <section className="report-section">
-                <div>
-                  <span className="step-number">3</span>
-                  <h3>Who is affected?</h3>
-                  <p className="muted">This helps staff understand how widely the problem is spreading.</p>
-                </div>
                 <label htmlFor="impact-scope">
                   Who is affected?
                   <select
@@ -170,13 +172,24 @@ export default function StudentPortal() {
                     ))}
                   </select>
                 </label>
-              </section>
+              </div>
 
-              <section className="report-section compact-report-section">
-                <div>
-                  <span className="step-number">4</span>
-                  <h3>Can staff contact you?</h3>
-                </div>
+              <label htmlFor="complaint-text">
+                Tell us about your grievance
+                <textarea
+                  id="complaint-text"
+                  value={text}
+                  onChange={(event) => setText(event.target.value)}
+                  minLength={5}
+                  maxLength={2000}
+                  rows={5}
+                  placeholder="Example: Paani nahi aa raha since morning"
+                  required
+                />
+                <small className={`counter ${characterTone}`}>{text.length}/2000</small>
+              </label>
+
+              <div className="student-permission-row">
                 <label className="checkbox-row" htmlFor="contact-permission">
                   <input
                     id="contact-permission"
@@ -188,81 +201,16 @@ export default function StudentPortal() {
                   />
                   <span>Allow hostel staff to contact me if they need clarification.</span>
                 </label>
-              </section>
+              </div>
               {error && <p className="form-error">{error}</p>}
-              <button className="primary-button" type="submit" disabled={isSubmitting}>
+              <button className="primary-button student-submit-button" type="submit" disabled={isSubmitting}>
                 <Send aria-hidden="true" />
                 {isSubmitting ? 'Submitting...' : 'Submit report'}
               </button>
             </form>
           </div>
-
-          <aside className="surface ai-receipt complaint-details-panel">
-            <div className="section-heading compact">
-              <div>
-                <h2>Your reports</h2>
-                <p className="muted">{sortedComplaints.length} report{sortedComplaints.length === 1 ? '' : 's'} sent</p>
-              </div>
-            </div>
-
-            <div className="complaint-details-scroll">
-              {isLoading && <HistorySkeleton />}
-
-              {!isLoading && sortedComplaints.length === 0 && (
-                <div className="empty-state">
-                  <p>No reports yet. When you report a problem, it will appear here.</p>
-                </div>
-              )}
-
-              {sortedComplaints.map((complaint) => (
-                <article className="complaint-card" key={complaint.id}>
-                  <div className="complaint-card-header">
-                    <strong>{displayProblemTitle(complaint.issue_title ?? `${complaint.category} problem`)}</strong>
-
-                    {complaint.issue_status ? (
-                      <StatusBadge status={complaint.issue_status} />
-                    ) : (
-                      <span className="status-muted">Pending</span>
-                    )}
-                  </div>
-
-                  <p className="complaint-text">{complaint.text}</p>
-
-                  <ComplaintLocation complaint={complaint} />
-
-                  <div className="complaint-card-footer">
-                    <span>{formatDateTime(complaint.created_at)}</span>
-                  </div>
-                </article>
-              ))}
-            </div>
-          </aside>
         </section>
       </div>
     </AppShell>
-  )
-}
-
-function ComplaintLocation({ complaint }: { complaint: Complaint }) {
-  const location = typeof complaint.metadata.location_detail === 'string' ? complaint.metadata.location_detail : ''
-
-  if (!location.trim()) {
-    return null
-  }
-
-  return <span className="complaint-location">Location: {location}</span>
-}
-
-function displayProblemTitle(title: string) {
-  return title.replace(/\bissue\b/gi, 'problem')
-}
-
-function HistorySkeleton() {
-  return (
-    <div className="history-skeleton" aria-live="polite" aria-label="Loading recent reports">
-      <span />
-      <span />
-      <span />
-    </div>
   )
 }

@@ -1,6 +1,6 @@
 import { FormEvent, useState } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
-import { ArrowRight, Eye, EyeOff, UserPlus } from 'lucide-react'
+import { Eye, EyeOff } from 'lucide-react'
 
 import { useAuth } from '../auth/AuthContext'
 
@@ -27,41 +27,14 @@ export default function RegisterPage() {
   }
 
   return (
-    <main className="auth-page">
-      <section className="auth-layout compact-auth" aria-label="Student registration">
-        <div className="auth-intel-panel auth-minimal-panel">
-          <div className="auth-brand-block">
-            <div>
-              <p className="eyebrow">Student account</p>
-              <h1>Create your hostel help desk account</h1>
-              <p className="muted">
-                Send hostel reports, keep a record of them, and track when the problem moves forward.
-              </p>
-            </div>
-          </div>
-
-          <div className="auth-minimal-list">
-            <div>
-              <span>Your reports are saved with hostel and location details.</span>
-            </div>
-
-            <div>
-              <span>Track whether your reported problem is new, being fixed, or resolved.</span>
-            </div>
-          </div>
-
-          <p className="auth-note">
-            Student accounts only. Staff access is managed separately.
-          </p>
+    <main className="auth-page auth-reference-page">
+      <section className="auth-card auth-card-register" aria-label="Student registration">
+        <h1>Signup.</h1>
+        <div className="auth-card-copy">
+          <h2>Welcome!</h2>
+          <p>Create your student account</p>
         </div>
-
-        <div className="auth-panel">
-          <div>
-            <p className="eyebrow">Student access</p>
-            <h2>Create account</h2>
-            <p className="muted">Staff accounts are created separately by the hostel team.</p>
-          </div>
-          <form onSubmit={submit} className="form-stack">
+        <form onSubmit={submit} className="auth-card-form">
             <label htmlFor="register-name">
               Full name
               <input
@@ -107,19 +80,13 @@ export default function RegisterPage() {
               </div>
             </label>
             {error && <p className="form-error">{error}</p>}
-            <button className="primary-button" type="submit" disabled={isSubmitting}>
-              <UserPlus aria-hidden="true" />
+            <button className="primary-button auth-submit" type="submit" disabled={isSubmitting}>
               {isSubmitting ? 'Creating...' : 'Create account'}
             </button>
-          </form>
-          <p className="muted auth-switch">
-            Already registered?{' '}
-            <Link to="/login">
-              Sign in
-              <ArrowRight aria-hidden="true" />
-            </Link>
-          </p>
-        </div>
+        </form>
+        <p className="auth-switch">
+          Already have an account? <Link to="/login">Login</Link>
+        </p>
       </section>
     </main>
   )

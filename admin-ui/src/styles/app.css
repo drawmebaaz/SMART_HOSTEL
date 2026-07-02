@@ -1,3 +1,5 @@
+@import url("https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap");
+
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
@@ -6,7 +8,7 @@
   color: #1f2937;
   background: #f4f6f8;
   font-family:
-    Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+    Poppins, Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
   font-synthesis: none;
   text-rendering: optimizeLegibility;
   --bg: #f4f6f8;
@@ -2171,5 +2173,768 @@ textarea::placeholder {
 
   .detail-facts div + div {
     border-top: 1px solid var(--line-soft);
+  }
+}
+
+/* Reference-inspired clean hostel UI refresh */
+.auth-reference-page,
+.student-reference-page,
+.student-dashboard-page,
+.ops-page {
+  font-family:
+    Poppins, Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+}
+
+.auth-reference-page {
+  position: relative;
+  display: grid;
+  min-height: 100vh;
+  place-items: center;
+  overflow: hidden;
+  padding: 48px 20px;
+  background: #f7f8fb;
+}
+
+.auth-reference-page::before,
+.auth-reference-page::after {
+  position: absolute;
+  z-index: 0;
+  width: 290px;
+  height: 250px;
+  background-image: radial-gradient(circle, rgb(92 112 255 / 0.52) 0 3px, transparent 3.5px);
+  background-size: 30px 30px;
+  content: "";
+  pointer-events: none;
+}
+
+.auth-reference-page::before {
+  top: 13%;
+  left: calc(50% - 400px);
+}
+
+.auth-reference-page::after {
+  right: calc(50% - 430px);
+  bottom: 13%;
+}
+
+.auth-card {
+  position: relative;
+  z-index: 1;
+  width: min(600px, 100%);
+  border: 1px solid #edf0f5;
+  border-radius: 8px;
+  padding: 34px 49px 48px;
+  background: #ffffff;
+  box-shadow: 0 18px 32px rgb(15 23 42 / 0.12);
+}
+
+.auth-card h1 {
+  margin: 0 0 48px;
+  color: #6264f4;
+  font-size: 2.18rem;
+  font-weight: 700;
+  line-height: 1;
+  text-align: center;
+}
+
+.auth-card-copy {
+  margin-bottom: 28px;
+}
+
+.auth-card-copy h2 {
+  margin: 0 0 10px;
+  color: #152238;
+  font-size: 1.55rem;
+  font-weight: 500;
+}
+
+.auth-card-copy p {
+  margin: 0;
+  color: #5f6b7c;
+  font-size: 1.02rem;
+}
+
+.auth-card-form {
+  display: grid;
+  gap: 20px;
+}
+
+.auth-card-form label,
+.student-complaint-form label {
+  display: grid;
+  gap: 10px;
+  color: #13223a;
+  font-size: 0.86rem;
+  font-weight: 500;
+  text-transform: uppercase;
+}
+
+.auth-card-form input,
+.auth-card-form select,
+.student-complaint-form input,
+.student-complaint-form select,
+.student-complaint-form textarea {
+  width: 100%;
+  border: 1px solid #aab4c4;
+  border-radius: 6px;
+  background: #ffffff;
+  color: #142033;
+  font-size: 0.96rem;
+  font-weight: 400;
+  outline: none;
+  transition:
+    border-color 180ms ease,
+    box-shadow 180ms ease;
+}
+
+.auth-card-form input,
+.auth-card-form select {
+  min-height: 48px;
+  padding: 0 16px;
+}
+
+.auth-card-form input::placeholder,
+.student-complaint-form input::placeholder,
+.student-complaint-form textarea::placeholder {
+  color: #9aa2b1;
+}
+
+.auth-card-form input:focus,
+.student-complaint-form input:focus,
+.student-complaint-form select:focus,
+.student-complaint-form textarea:focus {
+  border-color: #6264f4;
+  box-shadow: 0 0 0 3px rgb(98 100 244 / 0.13);
+}
+
+.auth-card .password-field input {
+  padding-right: 48px;
+}
+
+.auth-card .password-toggle {
+  color: #8a94a5;
+}
+
+.auth-submit,
+.student-submit-button {
+  min-height: 48px;
+  border: 0;
+  border-radius: 6px;
+  background: #5e60ed;
+  box-shadow: 0 8px 14px rgb(94 96 237 / 0.18);
+  color: #ffffff;
+  font-size: 0.98rem;
+  font-weight: 500;
+  transition:
+    background 180ms ease,
+    transform 180ms ease,
+    box-shadow 180ms ease;
+}
+
+.auth-submit:hover,
+.student-submit-button:hover {
+  background: #5154df;
+  box-shadow: 0 10px 18px rgb(94 96 237 / 0.24);
+  transform: translateY(-1px);
+}
+
+.auth-oauth-button {
+  margin-top: 14px;
+}
+
+.auth-switch {
+  margin: 24px 0 0;
+  color: #2f3d52;
+  font-size: 0.98rem;
+  text-align: center;
+}
+
+.auth-switch a {
+  color: #5154f0;
+  font-weight: 500;
+}
+
+.topbar {
+  border-bottom: 1px solid #dfe3ea;
+  background: #ffffff;
+  box-shadow: 0 1px 8px rgb(15 23 42 / 0.08);
+}
+
+.topbar-inner {
+  min-height: 84px;
+  padding-block: 0;
+}
+
+.brand strong {
+  color: #0e1728;
+  font-size: 1.35rem;
+  font-weight: 700;
+}
+
+.brand small {
+  display: none;
+}
+
+.nav a {
+  color: #596273;
+  font-size: 0.98rem;
+  font-weight: 500;
+}
+
+.nav a.active {
+  color: #245cff;
+}
+
+.account span {
+  color: #596273;
+  font-size: 0.96rem;
+  font-weight: 500;
+}
+
+.icon-button,
+.nav-menu-button,
+.secondary-button {
+  border-color: #245cff;
+  color: #245cff;
+}
+
+.page {
+  width: min(1560px, calc(100% - 64px));
+  padding: 36px 0 64px;
+}
+
+.student-reference-page {
+  width: 100%;
+}
+
+.student-complaints-strip {
+  padding: 0 0 96px;
+}
+
+.student-complaints-strip h1 {
+  margin: 0 0 42px;
+  color: #030917;
+  font-size: 1.8rem;
+  font-weight: 700;
+}
+
+.student-complaints-strip p {
+  margin: 0;
+  color: #40516a;
+  font-size: 1.35rem;
+  font-weight: 400;
+}
+
+.student-complaints-strip a {
+  display: inline-flex;
+  margin-top: 10px;
+  color: #245cff;
+  font-size: 1rem;
+  font-weight: 500;
+}
+
+.student-submit-layout {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(440px, 560px);
+  align-items: center;
+  gap: clamp(48px, 8vw, 110px);
+  max-width: 1220px;
+  margin: 0 auto;
+}
+
+.student-copy-block {
+  max-width: 680px;
+}
+
+.student-kicker {
+  margin: 0 0 12px;
+  color: #245cff;
+  font-size: 1rem;
+  font-weight: 500;
+}
+
+.student-copy-block h2 {
+  margin: 0 0 22px;
+  color: #121827;
+  font-size: clamp(2rem, 4vw, 2.55rem);
+  font-weight: 600;
+  line-height: 1.12;
+}
+
+.student-copy-block > p {
+  margin: 0;
+  max-width: 660px;
+  color: #35445b;
+  font-size: 1.05rem;
+  line-height: 1.75;
+}
+
+.student-feature-list {
+  display: grid;
+  gap: 30px;
+  margin-top: 76px;
+}
+
+.student-feature-list article {
+  display: grid;
+  grid-template-columns: 34px minmax(0, 1fr);
+  gap: 20px;
+  align-items: start;
+}
+
+.student-feature-list svg {
+  width: 26px;
+  height: 26px;
+  margin-top: 4px;
+  color: #2f78ff;
+  stroke-width: 1.9;
+}
+
+.student-feature-list h3 {
+  margin: 0 0 12px;
+  color: #162033;
+  font-size: 1rem;
+  font-weight: 500;
+}
+
+.student-feature-list p {
+  margin: 0;
+  color: #35445b;
+  font-size: 1rem;
+  line-height: 1.6;
+}
+
+.student-form-card {
+  overflow: hidden;
+  border: 1px solid #e1e5eb;
+  border-radius: 8px;
+  background: #ffffff;
+  box-shadow: 0 16px 28px rgb(15 23 42 / 0.12);
+}
+
+.student-form-card-head {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 18px;
+  border-bottom: 1px solid #d9dee7;
+  padding: 42px 40px 40px;
+}
+
+.student-form-card-head h2 {
+  margin: 0 0 10px;
+  color: #101827;
+  font-size: clamp(1.7rem, 3vw, 2.1rem);
+  font-weight: 500;
+}
+
+.student-form-card-head p {
+  margin: 0;
+  color: #35445b;
+  font-size: 1rem;
+}
+
+.student-form-card-head span {
+  flex: 0 0 auto;
+  border-radius: 7px;
+  padding: 6px 12px;
+  background: #dce9ff;
+  color: #1857df;
+  font-size: 0.84rem;
+  font-weight: 500;
+}
+
+.student-complaint-form {
+  display: grid;
+  gap: 24px;
+  padding: 46px 40px 40px;
+}
+
+.student-form-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 18px;
+}
+
+.student-complaint-form textarea {
+  min-height: 92px;
+  resize: vertical;
+  padding: 14px 16px;
+}
+
+.student-complaint-form input,
+.student-complaint-form select {
+  min-height: 52px;
+  padding: 0 16px;
+}
+
+.student-complaint-form small.counter {
+  justify-self: end;
+  color: #6d7889;
+  font-size: 0.72rem;
+  font-weight: 500;
+  text-transform: none;
+}
+
+.student-permission-row .checkbox-row {
+  grid-template-columns: 18px minmax(0, 1fr);
+  align-items: center;
+  gap: 10px;
+  color: #40516a;
+  font-size: 0.86rem;
+  font-weight: 400;
+  text-transform: none;
+}
+
+.student-dashboard-page {
+  display: grid;
+  gap: 24px;
+}
+
+.student-dashboard-head {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 24px;
+  padding: 22px 0 12px;
+}
+
+.student-dashboard-head h1 {
+  margin: 0 0 10px;
+  color: #030917;
+  font-size: clamp(2rem, 4vw, 2.65rem);
+  font-weight: 700;
+}
+
+.student-dashboard-head p {
+  margin: 0;
+  color: #40516a;
+  font-size: 1rem;
+}
+
+.student-profile-card {
+  min-width: 260px;
+  border: 1px solid #dde3eb;
+  border-radius: 8px;
+  padding: 18px;
+  background: #ffffff;
+  box-shadow: 0 10px 20px rgb(15 23 42 / 0.07);
+}
+
+.student-profile-card span,
+.student-dashboard-summary span,
+.student-report-id {
+  color: #687386;
+  font-size: 0.74rem;
+  font-weight: 600;
+  text-transform: uppercase;
+}
+
+.student-profile-card strong {
+  display: block;
+  margin-top: 8px;
+  color: #111827;
+  font-size: 1.05rem;
+}
+
+.student-profile-card p {
+  margin-top: 4px;
+  overflow-wrap: anywhere;
+}
+
+.student-dashboard-summary {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 16px;
+}
+
+.student-dashboard-summary article {
+  border: 1px solid #dde3eb;
+  border-radius: 8px;
+  padding: 18px;
+  background: #ffffff;
+}
+
+.student-dashboard-summary strong {
+  display: block;
+  margin-top: 8px;
+  color: #111827;
+  font-size: 1.8rem;
+  line-height: 1;
+}
+
+.student-complaint-list {
+  border: 1px solid #dde3eb;
+  border-radius: 8px;
+  background: #ffffff;
+  box-shadow: 0 10px 20px rgb(15 23 42 / 0.06);
+}
+
+.student-list-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 18px;
+  border-bottom: 1px solid #e3e8ef;
+  padding: 22px;
+}
+
+.student-list-head h2 {
+  margin: 0 0 6px;
+  color: #111827;
+  font-size: 1.25rem;
+}
+
+.student-list-head p {
+  margin: 0;
+  color: #637083;
+}
+
+.student-new-report-link {
+  width: auto;
+  min-height: 42px;
+  padding: 0 16px;
+}
+
+.student-report-cards {
+  display: grid;
+  gap: 0;
+}
+
+.student-report-card {
+  display: grid;
+  gap: 14px;
+  padding: 22px;
+}
+
+.student-report-card + .student-report-card {
+  border-top: 1px solid #e8edf3;
+}
+
+.student-report-main {
+  display: flex;
+  justify-content: space-between;
+  gap: 18px;
+}
+
+.student-report-main h3 {
+  margin: 5px 0 0;
+  color: #111827;
+  font-size: 1.05rem;
+  font-weight: 600;
+}
+
+.student-report-card p {
+  margin: 0;
+  color: #35445b;
+  line-height: 1.62;
+}
+
+.student-report-meta {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px 18px;
+  color: #687386;
+  font-size: 0.85rem;
+}
+
+.student-report-note {
+  display: grid;
+  gap: 5px;
+  border-radius: 8px;
+  padding: 12px 14px;
+  background: #f5f7fb;
+  color: #3d4a5f;
+  font-size: 0.9rem;
+}
+
+.student-report-note strong {
+  color: #111827;
+  font-size: 0.78rem;
+  text-transform: uppercase;
+}
+
+.student-empty-dashboard {
+  display: grid;
+  justify-items: start;
+  gap: 10px;
+  padding: 34px 22px;
+}
+
+.student-empty-dashboard h3 {
+  margin: 0;
+  color: #111827;
+}
+
+.student-empty-dashboard p {
+  margin: 0;
+  color: #637083;
+}
+
+.student-empty-dashboard .primary-button {
+  width: auto;
+  min-height: 42px;
+  padding: 0 16px;
+}
+
+.student-list-skeleton {
+  display: grid;
+  gap: 12px;
+  padding: 22px;
+}
+
+.student-list-skeleton span {
+  height: 78px;
+  border-radius: 8px;
+  background: linear-gradient(90deg, #eef2f7, #f7f9fc, #eef2f7);
+}
+
+.ops-page .student-intro,
+.ops-page .attention-strip,
+.ops-page .queue-panel,
+.ops-page .surface {
+  border: 1px solid #dde3eb;
+  border-radius: 8px;
+  background: #ffffff;
+  box-shadow: 0 10px 20px rgb(15 23 42 / 0.06);
+}
+
+.ops-page .student-intro {
+  padding: 28px 30px;
+}
+
+.ops-page .student-intro h1 {
+  color: #030917;
+  font-size: clamp(1.8rem, 3vw, 2.4rem);
+  font-weight: 700;
+}
+
+.ops-page .attention-strip {
+  margin-top: 18px;
+}
+
+.ops-page .issue-row {
+  border: 1px solid #e2e7ee;
+  border-radius: 8px;
+  background: #ffffff;
+  box-shadow: none;
+}
+
+.ops-page .issue-row:hover {
+  border-color: #b8c8e6;
+  background: #f9fbff;
+  transform: translateY(-1px);
+}
+
+@media (max-width: 960px) {
+  .page {
+    width: min(100%, calc(100% - 28px));
+    padding-top: 24px;
+  }
+
+  .topbar-inner {
+    min-height: 64px;
+  }
+
+  .brand strong {
+    font-size: 1rem;
+  }
+
+  .student-complaints-strip {
+    padding-bottom: 42px;
+  }
+
+  .student-complaints-strip h1 {
+    margin-bottom: 18px;
+    font-size: 1.55rem;
+  }
+
+  .student-complaints-strip p {
+    font-size: 1rem;
+    line-height: 1.6;
+  }
+
+  .student-submit-layout {
+    grid-template-columns: 1fr;
+    gap: 34px;
+  }
+
+  .student-feature-list {
+    margin-top: 34px;
+  }
+
+  .student-form-card {
+    width: 100%;
+  }
+
+  .student-dashboard-head {
+    display: grid;
+  }
+
+  .student-profile-card {
+    min-width: 0;
+    width: 100%;
+  }
+}
+
+@media (max-width: 640px) {
+  .auth-reference-page {
+    display: block;
+    padding: 54px 16px 28px;
+  }
+
+  .auth-reference-page::before {
+    top: 10px;
+    left: -62px;
+  }
+
+  .auth-reference-page::after {
+    right: -78px;
+    bottom: 10px;
+  }
+
+  .auth-card {
+    padding: 30px 22px 34px;
+  }
+
+  .auth-card h1 {
+    margin-bottom: 34px;
+    font-size: 1.95rem;
+  }
+
+  .auth-card-copy h2 {
+    font-size: 1.35rem;
+  }
+
+  .student-form-card-head {
+    display: grid;
+    padding: 28px 22px 24px;
+  }
+
+  .student-complaint-form {
+    padding: 28px 22px 24px;
+  }
+
+  .student-form-grid,
+  .student-dashboard-summary {
+    grid-template-columns: 1fr;
+  }
+
+  .student-copy-block h2 {
+    font-size: 1.85rem;
+  }
+
+  .student-feature-list article {
+    grid-template-columns: 28px minmax(0, 1fr);
+    gap: 14px;
+  }
+
+  .student-list-head,
+  .student-report-main {
+    display: grid;
+  }
+
+  .student-new-report-link {
+    width: 100%;
   }
 }
