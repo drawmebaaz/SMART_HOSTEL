@@ -1,8 +1,6 @@
-import { FormEvent, useEffect, useMemo, useState } from 'react'
+import { FormEvent, useMemo, useState } from 'react'
 import { CheckCircle2, LockKeyhole, MessageSquare, Send } from 'lucide-react'
-import { Link } from 'react-router-dom'
 import { api } from '../api/client'
-import type { Complaint } from '../api/types'
 import { AppShell } from '../components/AppShell'
 
 const HOSTELS = ['BH-1', 'BH-2', 'BH-3', 'BH-4', 'BH-5', 'GH-1', 'GH-2', 'GH-3', 'New Hostel', 'Old Hostel']
@@ -15,24 +13,8 @@ export default function StudentPortal() {
     impact: IMPACT_OPTIONS[0],
     contactPermission: true,
   })
-  const [complaints, setComplaints] = useState<Complaint[]>([])
   const [error, setError] = useState('')
-  const [isLoading, setIsLoading] = useState(true)
   const [isSubmitting, setIsSubmitting] = useState(false)
-
-  const loadComplaints = async () => {
-    setIsLoading(true)
-    const result = await api.myComplaints()
-    setComplaints(result)
-    setIsLoading(false)
-  }
-
-  useEffect(() => {
-    void loadComplaints().catch((err) => {
-      setError(err instanceof Error ? err.message : 'Unable to load reports')
-      setIsLoading(false)
-    })
-  }, [])
 
   const submit = async (event: FormEvent) => {
     event.preventDefault()
@@ -52,7 +34,6 @@ export default function StudentPortal() {
 
       setText('')
       setContext((current) => ({ ...current, location: '' }))
-      await loadComplaints()
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Unable to submit report')
     } finally {
@@ -66,31 +47,9 @@ export default function StudentPortal() {
     return ''
   }, [text.length])
 
-  const sortedComplaints = useMemo(
-    () =>
-      [...complaints].sort(
-        (a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime(),
-      ),
-    [complaints],
-  )
-
   return (
     <AppShell>
       <div className="student-page student-reference-page">
-        <section className="student-complaints-strip" aria-label="Complaint summary">
-          <h1>Complaints</h1>
-          {isLoading && <p>Loading your complaints...</p>}
-          {!isLoading && sortedComplaints.length === 0 && <p>No complaints registered yet.</p>}
-          {!isLoading && sortedComplaints.length > 0 && (
-            <div>
-              <p>
-                You have {sortedComplaints.length} complaint{sortedComplaints.length === 1 ? '' : 's'} registered.
-              </p>
-              <Link to="/student/reports">View complaint dashboard</Link>
-            </div>
-          )}
-        </section>
-
         <section className="student-submit-layout">
           <div className="student-copy-block">
             <p className="student-kicker">Hostel Grievance Redressal</p>

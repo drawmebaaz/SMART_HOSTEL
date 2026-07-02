@@ -116,16 +116,18 @@ export default function AdminDashboard() {
     <AppShell>
       <div className="ops-page">
         <section className="student-intro admin-intro">
-          <div>
-            <p className="eyebrow">Staff board</p>
-            <h1>Hostel staff board</h1>
-            <p className="muted hero-copy">
-              See what needs attention first, where students are affected, and what action should happen next.
-            </p>
-            <p className="board-summary-line" aria-label="Staff board summary">
-              {commandMode} / {needsAttentionCount} to check / {breachedCount > 0 ? `${breachedCount} late` : `${atRiskCount} due soon`}
-              {topHostel ? ` / Most reports from ${topHostel[0]}` : ''} / {dashboard?.complaints_total ?? 0} student reports
-            </p>
+          <div className="admin-hero-content">
+            <div>
+              <p className="eyebrow">Staff board</p>
+              <h1>Hostel staff board</h1>
+              <p className="muted hero-copy">
+                See what needs attention first, where students are affected, and what action should happen next.
+              </p>
+              <p className="board-summary-line" aria-label="Staff board summary">
+                {commandMode} / {needsAttentionCount} to check / {breachedCount > 0 ? `${breachedCount} late` : `${atRiskCount} due soon`}
+                {topHostel ? ` / Most reports from ${topHostel[0]}` : ''} / {dashboard?.complaints_total ?? 0} student reports
+              </p>
+            </div>
           </div>
         </section>
 
@@ -136,7 +138,6 @@ export default function AdminDashboard() {
                 <p className="eyebrow">Needs attention first</p>
                 <h2>{topIssue ? displayProblemTitle(topIssue.title) : 'No active problem'}</h2>
               </div>
-              {topIssue && <NeedLabel timeStatus={topIssue.intelligence.sla_status} value={topIssue.priority_score} />}
             </div>
             <p className="muted">
               {topIssue ? displayAction(topIssue.intelligence.recommended_action) : 'Nothing is waiting right now. New student reports will appear here.'}
@@ -145,10 +146,13 @@ export default function AdminDashboard() {
               {topIssue ? `${topIssue.hostel} / ${topIssue.category} / ${formatTimeStatus(topIssue.intelligence.sla_status)}` : 'No active hostel'}
             </div>
           </div>
-          <button className="secondary-button compact-refresh" type="button" onClick={() => void load()}>
-            <RefreshCw aria-hidden="true" />
-            Refresh
-          </button>
+          <div className="attention-actions">
+            {topIssue && <NeedLabel timeStatus={topIssue.intelligence.sla_status} value={topIssue.priority_score} />}
+            <button className="secondary-button compact-refresh" type="button" onClick={() => void load()}>
+              <RefreshCw aria-hidden="true" />
+              Refresh
+            </button>
+          </div>
         </section>
 
         {error && <p className="form-error">{error}</p>}

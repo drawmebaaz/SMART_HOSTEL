@@ -2405,38 +2405,13 @@ textarea::placeholder {
 
 .student-reference-page {
   width: 100%;
-}
-
-.student-complaints-strip {
-  padding: 0 0 96px;
-}
-
-.student-complaints-strip h1 {
-  margin: 0 0 42px;
-  color: #030917;
-  font-size: 1.8rem;
-  font-weight: 700;
-}
-
-.student-complaints-strip p {
-  margin: 0;
-  color: #40516a;
-  font-size: 1.35rem;
-  font-weight: 400;
-}
-
-.student-complaints-strip a {
-  display: inline-flex;
-  margin-top: 10px;
-  color: #245cff;
-  font-size: 1rem;
-  font-weight: 500;
+  padding-top: clamp(26px, 3.5vw, 48px);
 }
 
 .student-submit-layout {
   display: grid;
-  grid-template-columns: minmax(0, 1fr) minmax(440px, 560px);
-  align-items: center;
+  grid-template-columns: minmax(0, 0.98fr) minmax(440px, 560px);
+  align-items: start;
   gap: clamp(48px, 8vw, 110px);
   max-width: 1220px;
   margin: 0 auto;
@@ -2444,6 +2419,7 @@ textarea::placeholder {
 
 .student-copy-block {
   max-width: 680px;
+  padding-top: clamp(16px, 2vw, 34px);
 }
 
 .student-kicker {
@@ -2471,8 +2447,8 @@ textarea::placeholder {
 
 .student-feature-list {
   display: grid;
-  gap: 30px;
-  margin-top: 76px;
+  gap: 28px;
+  margin-top: clamp(42px, 6vw, 72px);
 }
 
 .student-feature-list article {
@@ -2505,6 +2481,7 @@ textarea::placeholder {
 }
 
 .student-form-card {
+  width: 100%;
   overflow: hidden;
   border: 1px solid #e1e5eb;
   border-radius: 8px;
@@ -2556,6 +2533,10 @@ textarea::placeholder {
   gap: 18px;
 }
 
+.student-form-grid label:last-child {
+  grid-column: 1 / -1;
+}
+
 .student-complaint-form textarea {
   min-height: 92px;
   resize: vertical;
@@ -2588,15 +2569,16 @@ textarea::placeholder {
 
 .student-dashboard-page {
   display: grid;
-  gap: 24px;
+  gap: 22px;
+  padding-top: 16px;
 }
 
 .student-dashboard-head {
   display: flex;
   align-items: flex-start;
   justify-content: space-between;
-  gap: 24px;
-  padding: 22px 0 12px;
+  gap: clamp(22px, 4vw, 52px);
+  padding: 18px 0 12px;
 }
 
 .student-dashboard-head h1 {
@@ -2646,6 +2628,7 @@ textarea::placeholder {
   display: grid;
   grid-template-columns: repeat(3, minmax(0, 1fr));
   gap: 16px;
+  align-items: stretch;
 }
 
 .student-dashboard-summary article {
@@ -2840,18 +2823,8 @@ textarea::placeholder {
     font-size: 1rem;
   }
 
-  .student-complaints-strip {
-    padding-bottom: 42px;
-  }
-
-  .student-complaints-strip h1 {
-    margin-bottom: 18px;
-    font-size: 1.55rem;
-  }
-
-  .student-complaints-strip p {
-    font-size: 1rem;
-    line-height: 1.6;
+  .student-reference-page {
+    padding-top: 24px;
   }
 
   .student-submit-layout {
@@ -2920,6 +2893,10 @@ textarea::placeholder {
     grid-template-columns: 1fr;
   }
 
+  .student-form-grid label:last-child {
+    grid-column: auto;
+  }
+
   .student-copy-block h2 {
     font-size: 1.85rem;
   }
@@ -2936,5 +2913,283 @@ textarea::placeholder {
 
   .student-new-report-link {
     width: 100%;
+  }
+}
+
+/* Staff board alignment polish */
+.page:has(.ops-page) {
+  width: calc(100% - 64px);
+  max-width: none;
+}
+
+body:has(.ops-page) .topbar-inner {
+  width: calc(100% - 64px);
+  max-width: none;
+}
+
+.ops-page {
+  display: grid;
+  gap: 16px;
+  width: 100%;
+  max-width: none;
+  margin: 0;
+}
+
+.ops-page .student-intro {
+  margin: 0;
+  padding: 24px 28px;
+}
+
+.ops-page .student-intro h1 {
+  margin-bottom: 10px;
+}
+
+.ops-page .student-intro .hero-copy {
+  max-width: 660px;
+  margin-bottom: 14px;
+}
+
+.ops-page .board-summary-line {
+  margin: 0;
+}
+
+.admin-hero-content {
+  max-width: 860px;
+}
+
+.ops-page .attention-strip {
+  grid-template-columns: minmax(0, 1fr) 150px;
+  align-items: stretch;
+  gap: 24px;
+  margin-top: 0;
+  padding: 22px 28px;
+}
+
+.ops-page .attention-strip .section-heading.compact {
+  display: block;
+  margin: 0 0 12px;
+}
+
+.ops-page .attention-strip h2 {
+  margin: 0;
+}
+
+.ops-page .attention-strip p {
+  max-width: 680px;
+  margin: 0 0 10px;
+}
+
+.attention-actions {
+  display: flex;
+  min-height: 100%;
+  flex-direction: column;
+  align-items: stretch;
+  justify-content: center;
+  gap: 12px;
+}
+
+.ops-page .compact-refresh {
+  width: 100%;
+  min-height: 46px;
+  justify-self: stretch;
+}
+
+.attention-actions .need-label {
+  width: 100%;
+  justify-content: center;
+  text-align: center;
+}
+
+.ops-page .queue-panel {
+  overflow: hidden;
+  padding: 0;
+}
+
+.ops-page .queue-panel > .section-heading {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  align-items: end;
+  gap: 24px;
+  margin: 0;
+  border-bottom: 1px solid #e4e9f0;
+  padding: 20px 28px 16px;
+}
+
+.ops-page .queue-panel > .section-heading h2 {
+  margin-bottom: 8px;
+}
+
+.ops-page .queue-summary {
+  margin: 0;
+}
+
+.ops-page .status-tabs {
+  flex-wrap: nowrap;
+  gap: 22px;
+  justify-content: flex-end;
+  min-width: max-content;
+  padding-bottom: 0;
+}
+
+.ops-page .filter-bar {
+  grid-template-columns: minmax(260px, 1.7fr) repeat(4, minmax(112px, 0.56fr)) 96px;
+  align-items: end;
+  gap: 10px;
+  margin: 0;
+  border: 0;
+  border-bottom: 1px solid #e4e9f0;
+  border-radius: 0;
+  padding: 16px 18px;
+  background: #fbfcfe;
+}
+
+.ops-page .filter-field {
+  min-width: 0;
+}
+
+.ops-page .filter-field input,
+.ops-page .filter-field select,
+.ops-page .reset-filters {
+  min-height: 44px;
+}
+
+.ops-page .reset-filters {
+  width: 96px;
+  padding: 0 12px;
+}
+
+.ops-page .issue-list {
+  gap: 12px;
+  padding: 16px 18px 18px;
+}
+
+.ops-page .issue-row {
+  grid-template-columns: minmax(0, 1fr) 212px;
+  align-items: center;
+  gap: 18px;
+  padding: 18px;
+}
+
+.ops-page .issue-title-line {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  align-items: start;
+  gap: 16px;
+}
+
+.ops-page .issue-meta {
+  margin-top: 10px;
+}
+
+.ops-page .issue-main p {
+  max-width: 760px;
+  margin-top: 12px;
+}
+
+.ops-page .issue-scoreboard {
+  align-content: center;
+  align-self: stretch;
+  border-left: 1px solid #e8edf3;
+  padding-left: 18px;
+  justify-items: start;
+}
+
+.ops-page .need-label {
+  justify-self: start;
+}
+
+@media (max-width: 1080px) {
+  .page:has(.ops-page) {
+    width: min(100%, calc(100% - 28px));
+  }
+
+  body:has(.ops-page) .topbar-inner {
+    width: min(100%, calc(100% - 28px));
+  }
+
+  .ops-page .queue-panel > .section-heading {
+    grid-template-columns: 1fr;
+    align-items: start;
+  }
+
+  .ops-page .status-tabs {
+    justify-content: flex-start;
+    width: 100%;
+    min-width: 0;
+    overflow-x: auto;
+    scrollbar-width: none;
+  }
+
+  .ops-page .status-tabs::-webkit-scrollbar {
+    display: none;
+  }
+
+  .ops-page .filter-bar {
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+  }
+
+  .ops-page .search-field {
+    grid-column: span 2;
+  }
+
+  .ops-page .reset-filters {
+    width: 100%;
+  }
+
+  .ops-page .issue-row {
+    grid-template-columns: minmax(0, 1fr) 178px;
+  }
+}
+
+@media (max-width: 760px) {
+  .ops-page {
+    gap: 14px;
+    max-width: 100%;
+  }
+
+  .ops-page .student-intro,
+  .ops-page .attention-strip {
+    padding: 22px 18px;
+  }
+
+  .ops-page .attention-strip,
+  .ops-page .attention-strip .section-heading.compact,
+  .ops-page .queue-panel > .section-heading,
+  .ops-page .issue-row {
+    grid-template-columns: 1fr;
+  }
+
+  .ops-page .compact-refresh,
+  .ops-page .reset-filters {
+    width: 100%;
+    justify-self: stretch;
+  }
+
+  .attention-actions {
+    justify-content: flex-start;
+  }
+
+  .ops-page .filter-bar {
+    grid-template-columns: 1fr;
+    padding: 14px;
+  }
+
+  .ops-page .search-field {
+    grid-column: auto;
+  }
+
+  .ops-page .issue-list {
+    padding: 14px;
+  }
+
+  .ops-page .issue-scoreboard {
+    display: flex;
+    align-self: auto;
+    flex-wrap: wrap;
+    gap: 8px 12px;
+    border-top: 1px solid #e8edf3;
+    border-left: 0;
+    padding-top: 12px;
+    padding-left: 0;
   }
 }
