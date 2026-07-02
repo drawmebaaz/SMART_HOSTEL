@@ -14,7 +14,7 @@ Render free-tier apps may take a short time to wake up after inactivity.
 
 ### Student Report Flow
 
-![Student report screen showing location, report details, and recent report history](docs/images/student-complaint-flow.png)
+![Student report screen showing hostel selection, location details, impact scope, and complaint submission](docs/images/student-complaint-flow.png)
 
 ## Demo Accounts
 

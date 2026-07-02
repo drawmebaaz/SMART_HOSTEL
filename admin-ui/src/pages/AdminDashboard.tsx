@@ -123,10 +123,28 @@ export default function AdminDashboard() {
               <p className="muted hero-copy">
                 See what needs attention first, where students are affected, and what action should happen next.
               </p>
-              <p className="board-summary-line" aria-label="Staff board summary">
-                {commandMode} / {needsAttentionCount} to check / {breachedCount > 0 ? `${breachedCount} late` : `${atRiskCount} due soon`}
-                {topHostel ? ` / Most reports from ${topHostel[0]}` : ''} / {dashboard?.complaints_total ?? 0} student reports
-              </p>
+              <div className="board-summary-grid" aria-label="Staff board summary">
+                <article>
+                  <span>Current state</span>
+                  <strong>{commandMode}</strong>
+                </article>
+                <article>
+                  <span>To check</span>
+                  <strong>{needsAttentionCount}</strong>
+                </article>
+                <article>
+                  <span>{breachedCount > 0 ? 'Late' : 'Due soon'}</span>
+                  <strong>{breachedCount > 0 ? breachedCount : atRiskCount}</strong>
+                </article>
+                <article>
+                  <span>Most reports</span>
+                  <strong>{topHostel?.[0] ?? 'None'}</strong>
+                </article>
+                <article>
+                  <span>Student reports</span>
+                  <strong>{dashboard?.complaints_total ?? 0}</strong>
+                </article>
+              </div>
             </div>
           </div>
         </section>
