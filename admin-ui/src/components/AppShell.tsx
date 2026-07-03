@@ -11,7 +11,7 @@ export function AppShell({ children }: { children: React.ReactNode }) {
   const [isNavOpen, setIsNavOpen] = useState(false)
 
   const homePath = user?.role === 'ADMIN' ? '/admin' : '/student'
-  const primaryNavLabel = user?.role === 'ADMIN' ? 'Staff board' : 'Submit complaint'
+  const primaryNavLabel = user?.role === 'ADMIN' ? 'Dashboard' : 'Submit complaint'
 
   const handleLogout = async () => {
     setIsNavOpen(false)
@@ -63,7 +63,9 @@ export function AppShell({ children }: { children: React.ReactNode }) {
             </span>
           </Link>
           <nav className="nav desktop-nav" aria-label="Primary navigation">
-            <NavLink end={user?.role === 'STUDENT'} to={homePath}>{primaryNavLabel}</NavLink>
+            <NavLink end to={homePath}>{primaryNavLabel}</NavLink>
+            {user?.role === 'ADMIN' && <NavLink end to="/admin/issues">Issues</NavLink>}
+            {user?.role === 'ADMIN' && <NavLink to="/admin/reports">Reports</NavLink>}
             {user?.role === 'STUDENT' && <NavLink to="/student/reports">My complaints</NavLink>}
           </nav>
           <div className="account">
@@ -105,7 +107,9 @@ export function AppShell({ children }: { children: React.ReactNode }) {
         </div>
 
         <nav className="side-nav-links" aria-label="Side navigation">
-          <NavLink end={user?.role === 'STUDENT'} to={homePath}>{primaryNavLabel}</NavLink>
+          <NavLink end to={homePath}>{primaryNavLabel}</NavLink>
+          {user?.role === 'ADMIN' && <NavLink end to="/admin/issues">Issues</NavLink>}
+          {user?.role === 'ADMIN' && <NavLink to="/admin/reports">Reports</NavLink>}
           {user?.role === 'STUDENT' && <NavLink to="/student/reports">My complaints</NavLink>}
         </nav>
 

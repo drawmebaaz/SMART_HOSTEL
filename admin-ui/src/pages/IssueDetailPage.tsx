@@ -48,9 +48,9 @@ export default function IssueDetailPage() {
   return (
     <AppShell>
       <div className="detail-page">
-        <Link className="back-link" to="/admin">
+        <Link className="back-link" to="/admin/issues">
           <ArrowLeft aria-hidden="true" />
-          Back to staff board
+          Back to issues
         </Link>
         {error && <p className="form-error">{error}</p>}
         {!issue && <IssueDetailSkeleton />}

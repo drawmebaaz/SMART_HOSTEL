@@ -1,33 +1,27 @@
-import { useEffect, useLayoutEffect, useMemo, useRef, useState } from 'react'
+import { useEffect, useMemo, useState } from 'react'
+import type React from 'react'
 import { Link } from 'react-router-dom'
-import {
-  Building2,
-  RefreshCw,
-  Search,
-  X,
-} from 'lucide-react'
+import { AlertTriangle, ArrowRight, BarChart3, Clock3, ListChecks, RefreshCw, ShieldCheck } from 'lucide-react'
 
 import { api } from '../api/client'
-import type { DashboardSummary, IssueStatus, IssueSummary } from '../api/types'
+import type { DashboardSummary, IssueSummary } from '../api/types'
 import { AppShell } from '../components/AppShell'
 import { StatusBadge } from '../components/StatusBadge'
 import { formatDateTime } from '../utils/time'
-
-const STATUSES: Array<IssueStatus | 'ALL'> = ['ALL', 'OPEN', 'IN_PROGRESS', 'REOPENED', 'RESOLVED']
+import {
+  displayAction,
+  displayProblemTitle,
+  formatNeedLevel,
+  formatTimeStatus,
+  issueShortId,
+  percentage,
+  sortProblemsForStaff,
+} from './adminPageUtils'
 
 export default function AdminDashboard() {
   const [dashboard, setDashboard] = useState<DashboardSummary | null>(null)
-  const [status, setStatus] = useState<IssueStatus | 'ALL'>('ALL')
-  const [search, setSearch] = useState('')
-  const [hostelFilter, setHostelFilter] = useState('ALL')
-  const [categoryFilter, setCategoryFilter] = useState('ALL')
-  const [slaFilter, setSlaFilter] = useState('ALL')
-  const [priorityFilter, setPriorityFilter] = useState('ALL')
   const [error, setError] = useState('')
   const [isLoading, setIsLoading] = useState(true)
-  const statusTabsRef = useRef<HTMLDivElement | null>(null)
-  const statusTabRefs = useRef<Record<string, HTMLButtonElement | null>>({})
-  const [tabIndicator, setTabIndicator] = useState({ left: 0, width: 0 })
 
   const load = async () => {
     setIsLoading(true)
@@ -35,7 +29,7 @@ export default function AdminDashboard() {
     try {
       setDashboard(await api.dashboard())
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'Unable to load staff board')
+      setError(err instanceof Error ? err.message : 'Unable to load dashboard')
     } finally {
       setIsLoading(false)
     }
@@ -45,131 +39,37 @@ export default function AdminDashboard() {
     void load()
   }, [])
 
-  useLayoutEffect(() => {
-    const updateIndicator = () => {
-      const activeTab = statusTabRefs.current[status]
-      const tabList = statusTabsRef.current
-      if (!activeTab || !tabList) return
+  const attentionIssues = useMemo(
+    () =>
+      dashboard
+        ? dashboard.issues
+            .filter((issue) => issue.status !== 'RESOLVED')
+            .sort(sortProblemsForStaff)
+        : [],
+    [dashboard],
+  )
 
-      const activeRect = activeTab.getBoundingClientRect()
-      const listRect = tabList.getBoundingClientRect()
-      setTabIndicator({
-        left: activeRect.left - listRect.left,
-        width: activeRect.width,
-      })
-    }
-
-    updateIndicator()
-    window.addEventListener('resize', updateIndicator)
-    return () => window.removeEventListener('resize', updateIndicator)
-  }, [dashboard, status])
-
-  const filteredIssues = useMemo(() => {
-    if (!dashboard) return []
-    const searchTerm = search.trim().toLowerCase()
-    return dashboard.issues
-      .filter((issue) => {
-        const matchesStatus = status === 'ALL' || issue.status === status
-        const matchesHostel = hostelFilter === 'ALL' || issue.hostel === hostelFilter
-        const matchesCategory = categoryFilter === 'ALL' || issue.category === categoryFilter
-        const matchesSla = slaFilter === 'ALL' || issue.intelligence.sla_status === slaFilter
-        const displayedNeed = formatNeedLevel(issue.priority_score, issue.intelligence.sla_status)
-        const matchesPriority =
-          priorityFilter === 'ALL' ||
-          (priorityFilter === 'HIGH' && displayedNeed === 'High') ||
-          (priorityFilter === 'MEDIUM' && displayedNeed === 'Medium') ||
-          (priorityFilter === 'LOW' && displayedNeed === 'Low')
-        const matchesSearch =
-          !searchTerm ||
-          [
-            issue.title,
-            issue.hostel,
-            issue.category,
-            issue.status,
-            issue.intelligence.sla_status,
-            issue.intelligence.recommended_action,
-          ]
-            .join(' ')
-            .toLowerCase()
-            .includes(searchTerm)
-        return matchesStatus && matchesHostel && matchesCategory && matchesSla && matchesPriority && matchesSearch
-      })
-      .sort(sortProblemsForStaff)
-  }, [categoryFilter, dashboard, hostelFilter, priorityFilter, search, slaFilter, status])
-
-  const hostelOptions = useMemo(() => Object.keys(dashboard?.hostel_breakdown ?? {}).sort(), [dashboard])
-  const categoryOptions = useMemo(() => Object.keys(dashboard?.category_breakdown ?? {}).sort(), [dashboard])
-  const slaOptions = useMemo(() => Object.keys(dashboard?.sla_breakdown ?? {}).sort(), [dashboard])
-
-  const attentionIssues = filteredIssues.filter((issue) => issue.status !== 'RESOLVED')
   const topIssue = attentionIssues[0]
-  const topHostel = dashboard ? topBreakdownEntry(dashboard.hostel_breakdown) : null
-  const breachedCount = dashboard?.sla_breakdown.BREACHED ?? 0
-  const atRiskCount = dashboard?.sla_breakdown.AT_RISK ?? 0
-  const needsAttentionCount = dashboard ? Math.max(dashboard.critical_issues, breachedCount + atRiskCount) : 0
-  const commandMode = dashboard?.critical_issues
-    ? 'Needs review'
-    : dashboard && dashboard.total_open > 0
-      ? 'Open problems'
-      : 'All clear'
+  const nextIssues = attentionIssues.slice(1, 5)
+  const lateCount = dashboard?.sla_breakdown.BREACHED ?? 0
+  const dueSoonCount = dashboard?.sla_breakdown.AT_RISK ?? 0
+
   return (
     <AppShell>
-      <div className="ops-page">
-        <section className="student-intro admin-intro">
-          <div className="admin-hero-content">
-            <div>
-              <p className="eyebrow">Staff board</p>
-              <h1>Hostel staff board</h1>
-              <p className="muted hero-copy">
-                See what needs attention first, where students are affected, and what action should happen next.
-              </p>
-              <div className="board-summary-grid" aria-label="Staff board summary">
-                <article>
-                  <span>Current state</span>
-                  <strong>{commandMode}</strong>
-                </article>
-                <article>
-                  <span>To check</span>
-                  <strong>{needsAttentionCount}</strong>
-                </article>
-                <article>
-                  <span>{breachedCount > 0 ? 'Late' : 'Due soon'}</span>
-                  <strong>{breachedCount > 0 ? breachedCount : atRiskCount}</strong>
-                </article>
-                <article>
-                  <span>Most reports</span>
-                  <strong>{topHostel?.[0] ?? 'None'}</strong>
-                </article>
-                <article>
-                  <span>Student reports</span>
-                  <strong>{dashboard?.complaints_total ?? 0}</strong>
-                </article>
-              </div>
-            </div>
-          </div>
-        </section>
-
-        <section className="surface attention-strip" aria-label="Top problem">
+      <div className="ops-page admin-command-page">
+        <section className="admin-command-hero">
           <div>
-            <div className="section-heading compact">
-              <div>
-                <p className="eyebrow">Needs attention first</p>
-                <h2>{topIssue ? displayProblemTitle(topIssue.title) : 'No active problem'}</h2>
-              </div>
-            </div>
-            <p className="muted">
-              {topIssue ? displayAction(topIssue.intelligence.recommended_action) : 'Nothing is waiting right now. New student reports will appear here.'}
+            <p className="eyebrow">Operations command center</p>
+            <h1>Resolve hostel issues before they escalate.</h1>
+            <p>
+              Prioritize repeated student reports, track time pressure, and move each hostel problem through resolution.
             </p>
-            <div className="directive-meta">
-              {topIssue ? `${topIssue.hostel} / ${topIssue.category} / ${formatTimeStatus(topIssue.intelligence.sla_status)}` : 'No active hostel'}
-            </div>
           </div>
-          <div className="attention-actions">
-            {topIssue && <NeedLabel timeStatus={topIssue.intelligence.sla_status} value={topIssue.priority_score} />}
-            <button className="secondary-button compact-refresh" type="button" onClick={() => void load()}>
-              <RefreshCw aria-hidden="true" />
-              Refresh
-            </button>
+          <div className="command-signal-row" aria-label="Current operations signals">
+            <span>Critical {dashboard?.critical_issues ?? 0}</span>
+            <span>Late {lateCount}</span>
+            <span>Due soon {dueSoonCount}</span>
+            <span>Open {dashboard?.total_open ?? 0}</span>
           </div>
         </section>
 
@@ -178,155 +78,82 @@ export default function AdminDashboard() {
 
         {dashboard && (
           <>
-            <section className="surface queue-panel">
-              <div className="section-heading">
+            <section className="admin-briefing-layout">
+              <PriorityCard issue={topIssue} />
+              <div className="admin-metric-grid" aria-label="Key dashboard metrics">
+                <MetricCard
+                  caption="Need staff attention"
+                  icon={<AlertTriangle aria-hidden="true" />}
+                  label="Critical issues"
+                  value={dashboard.critical_issues}
+                />
+                <MetricCard
+                  caption="Past expected response"
+                  icon={<Clock3 aria-hidden="true" />}
+                  label="Late problems"
+                  value={lateCount}
+                />
+                <MetricCard
+                  caption="Review before they slip"
+                  icon={<ShieldCheck aria-hidden="true" />}
+                  label="Due soon"
+                  value={dueSoonCount}
+                />
+                <MetricCard
+                  caption="Still in the queue"
+                  icon={<ListChecks aria-hidden="true" />}
+                  label="Open issues"
+                  value={dashboard.total_open}
+                />
+              </div>
+            </section>
+
+            <section className="admin-section-card">
+              <div className="admin-section-heading">
                 <div>
-                  <p className="eyebrow">Problems to handle today</p>
-                  <h2>Student reports needing staff attention</h2>
-                  <p className="muted queue-summary">
-                    Showing {filteredIssues.length} of {dashboard.issues.length} problem{dashboard.issues.length === 1 ? '' : 's'}.
-                  </p>
+                  <p className="eyebrow">Needs attention</p>
+                  <h2>Next issues to review</h2>
+                  <p>Only the most urgent open work is shown here. Use Issues for the full queue.</p>
                 </div>
-                <div className="status-tabs" ref={statusTabsRef} role="tablist" aria-label="Filter problems by status">
-                  <span
-                    aria-hidden="true"
-                    className="status-tab-indicator"
-                    style={{
-                      opacity: tabIndicator.width > 0 ? 1 : 0,
-                      transform: `translateX(${tabIndicator.left}px)`,
-                      width: `${tabIndicator.width}px`,
-                    }}
-                  />
-                  {STATUSES.map((value) => (
-                    <button
-                      aria-selected={status === value}
-                      className={status === value ? 'active' : ''}
-                      key={value}
-                      onClick={() => setStatus(value)}
-                      ref={(node) => {
-                        statusTabRefs.current[value] = node
-                      }}
-                      role="tab"
-                      type="button"
-                    >
-                      {formatStatusTab(value)}
-                    </button>
-                  ))}
-                </div>
+                <Link className="secondary-button admin-inline-action" to="/admin/issues">
+                  View all issues
+                  <ArrowRight aria-hidden="true" />
+                </Link>
               </div>
 
-              <div className="filter-bar" aria-label="Problem filters">
-                <label className="filter-field search-field" htmlFor="issue-search">
-                  <Search aria-hidden="true" />
-                  <input
-                    id="issue-search"
-                    value={search}
-                    onChange={(event) => setSearch(event.target.value)}
-                    placeholder="Search problem, hostel, or next step..."
-                  />
-                </label>
-                <label className="filter-field" htmlFor="hostel-filter">
-                  <span>Hostel</span>
-                  <select id="hostel-filter" value={hostelFilter} onChange={(event) => setHostelFilter(event.target.value)}>
-                    <option value="ALL">All</option>
-                    {hostelOptions.map((value) => (
-                      <option key={value} value={value}>
-                        {value}
-                      </option>
-                    ))}
-                  </select>
-                </label>
-                <label className="filter-field" htmlFor="category-filter">
-                  <span>Type</span>
-                  <select
-                    id="category-filter"
-                    value={categoryFilter}
-                    onChange={(event) => setCategoryFilter(event.target.value)}
-                  >
-                    <option value="ALL">All</option>
-                    {categoryOptions.map((value) => (
-                      <option key={value} value={value}>
-                        {value}
-                      </option>
-                    ))}
-                  </select>
-                </label>
-                <label className="filter-field" htmlFor="sla-filter">
-                  <span>Time</span>
-                  <select id="sla-filter" value={slaFilter} onChange={(event) => setSlaFilter(event.target.value)}>
-                    <option value="ALL">All</option>
-                    {slaOptions.map((value) => (
-                      <option key={value} value={value}>
-                        {formatTimeStatus(value)}
-                      </option>
-                    ))}
-                  </select>
-                </label>
-                <label className="filter-field" htmlFor="priority-filter">
-                  <span>Need</span>
-                  <select
-                    id="priority-filter"
-                    value={priorityFilter}
-                    onChange={(event) => setPriorityFilter(event.target.value)}
-                  >
-                    <option value="ALL">All</option>
-                    <option value="HIGH">High</option>
-                    <option value="MEDIUM">Medium</option>
-                    <option value="LOW">Low</option>
-                  </select>
-                </label>
-                <button
-                  className="secondary-button reset-filters"
-                  type="button"
-                  onClick={() => {
-                    setSearch('')
-                    setHostelFilter('ALL')
-                    setCategoryFilter('ALL')
-                    setSlaFilter('ALL')
-                    setPriorityFilter('ALL')
-                    setStatus('ALL')
-                  }}
-                >
-                  <X aria-hidden="true" />
-                  Reset
-                </button>
-              </div>
+              {attentionIssues.length === 0 && (
+                <div className="empty-state">
+                  <p>No active issue waiting. All current hostel issues are under control.</p>
+                </div>
+              )}
 
-              <div className="issue-list">
-                {filteredIssues.length === 0 && (
-                  <div className="empty-state">
-                    <p>No problems match this filter.</p>
-                  </div>
-                )}
-                {filteredIssues.map((issue) => (
-                  <Link className="issue-row" key={issue.id} to={`/admin/issues/${issue.id}`}>
-                    <div className="issue-main">
-                      <div className="issue-title-line">
-                        <div>
-                          <strong>{displayProblemTitle(issue.title)}</strong>
-                        </div>
-                        <StatusBadge status={issue.status} />
-                      </div>
-                      <div className="issue-meta">
-                        <span>
-                          <Building2 aria-hidden="true" />
-                          {issue.hostel}
-                        </span>
-                        <span>{issue.category}</span>
-                        <span>{formatDateTime(issue.last_complaint_at)}</span>
-                      </div>
-                      <p>{displayAction(issue.intelligence.recommended_action)}</p>
-                    </div>
-                    <div className="issue-scoreboard">
-                      <NeedLabel timeStatus={issue.intelligence.sla_status} value={issue.priority_score} />
-                      <span className={`time-label time-${issue.intelligence.sla_status.toLowerCase()}`}>
-                        {formatTimeStatus(issue.intelligence.sla_status)}
-                      </span>
-                      <span>{issue.complaint_count} student report{issue.complaint_count === 1 ? '' : 's'}</span>
-                    </div>
-                  </Link>
+              <div className="attention-list">
+                {nextIssues.map((issue) => (
+                  <IssueBriefCard issue={issue} key={issue.id} />
                 ))}
               </div>
+            </section>
+
+            <section className="quick-actions-grid" aria-label="Admin quick links">
+              <QuickActionCard
+                description="Search, filter, inspect, and update all hostel issues."
+                href="/admin/issues"
+                icon={<ListChecks aria-hidden="true" />}
+                title="View full issue queue"
+              />
+              <QuickActionCard
+                description="Review trends and print a clean management report."
+                href="/admin/reports"
+                icon={<BarChart3 aria-hidden="true" />}
+                title="Open reports"
+              />
+              <button className="quick-action-card quick-action-button" type="button" onClick={() => void load()}>
+                <span className="quick-action-icon">
+                  <RefreshCw aria-hidden="true" />
+                </span>
+                <strong>Refresh dashboard</strong>
+                <small>Load the latest student reports and issue status.</small>
+              </button>
             </section>
           </>
         )}
@@ -335,14 +162,121 @@ export default function AdminDashboard() {
   )
 }
 
-function NeedLabel({ value, timeStatus }: { value: number; timeStatus?: string }) {
-  const label = formatNeedLevel(value, timeStatus)
-  return <span className={`need-label need-${label.toLowerCase()}`}>{label} need</span>
+function PriorityCard({ issue }: { issue?: IssueSummary }) {
+  if (!issue) {
+    return (
+      <section className="admin-priority-card">
+        <p className="eyebrow">Today&apos;s priority</p>
+        <h2>No active issue waiting.</h2>
+        <p>All current hostel issues are under control. New student reports will appear here when they need attention.</p>
+      </section>
+    )
+  }
+
+  const need = formatNeedLevel(issue.priority_score, issue.intelligence.sla_status)
+
+  return (
+    <section className="admin-priority-card">
+      <div className="admin-priority-head">
+        <div>
+          <p className="eyebrow">Today&apos;s priority</p>
+          <h2>{displayProblemTitle(issue.title)}</h2>
+        </div>
+        <span className={`soft-pill soft-${need.toLowerCase()}`}>{need} need</span>
+      </div>
+      <div className="issue-meta-pills">
+        <span>{issue.hostel}</span>
+        <span>{issue.category}</span>
+        <span>{formatTimeStatus(issue.intelligence.sla_status)}</span>
+        <span>{issue.complaint_count} report{issue.complaint_count === 1 ? '' : 's'}</span>
+      </div>
+      <p>{displayAction(issue.intelligence.recommended_action)}</p>
+      <div className="priority-footer">
+        <span>Last reported {formatDateTime(issue.last_complaint_at)}</span>
+        <Link className="primary-button priority-review-button" to={`/admin/issues/${issue.id}`}>
+          Review issue
+          <ArrowRight aria-hidden="true" />
+        </Link>
+      </div>
+    </section>
+  )
+}
+
+function MetricCard({
+  caption,
+  icon,
+  label,
+  value,
+}: {
+  caption: string
+  icon: React.ReactNode
+  label: string
+  value: number
+}) {
+  return (
+    <article className="admin-metric-card">
+      <span className="metric-icon">{icon}</span>
+      <strong>{value}</strong>
+      <span>{label}</span>
+      <p>{caption}</p>
+    </article>
+  )
+}
+
+function IssueBriefCard({ issue }: { issue: IssueSummary }) {
+  const need = formatNeedLevel(issue.priority_score, issue.intelligence.sla_status)
+  return (
+    <article className="admin-issue-card">
+      <div className="issue-card-main">
+        <div className="issue-card-title-row">
+          <span className="issue-id">{issueShortId(issue.id)}</span>
+          <span className={`soft-pill soft-${need.toLowerCase()}`}>{need} need</span>
+        </div>
+        <h3>{displayProblemTitle(issue.title)}</h3>
+        <div className="issue-meta-pills">
+          <span>{issue.hostel}</span>
+          <span>{issue.category}</span>
+          <span>{formatTimeStatus(issue.intelligence.sla_status)}</span>
+          <span>{issue.complaint_count} report{issue.complaint_count === 1 ? '' : 's'}</span>
+        </div>
+        <p>{displayAction(issue.intelligence.recommended_action)}</p>
+      </div>
+      <div className="issue-card-side">
+        <StatusBadge status={issue.status} />
+        <div className="priority-meter" aria-label={`Priority score ${Math.round(issue.priority_score)}`}>
+          <span style={{ width: `${percentage(issue.priority_score, 100)}%` }} />
+        </div>
+        <Link className="secondary-button review-link" to={`/admin/issues/${issue.id}`}>
+          Review
+        </Link>
+      </div>
+    </article>
+  )
+}
+
+function QuickActionCard({
+  description,
+  href,
+  icon,
+  title,
+}: {
+  description: string
+  href: string
+  icon: React.ReactNode
+  title: string
+}) {
+  return (
+    <Link className="quick-action-card" to={href}>
+      <span className="quick-action-icon">{icon}</span>
+      <strong>{title}</strong>
+      <small>{description}</small>
+    </Link>
+  )
 }
 
 function DashboardSkeleton() {
   return (
-    <div className="loading-stack" aria-live="polite" aria-label="Loading staff board">
+    <div className="loading-stack" aria-live="polite" aria-label="Loading dashboard">
       <div className="skeleton-grid">
         <span />
         <span />
@@ -352,62 +286,4 @@ function DashboardSkeleton() {
       <div className="skeleton-panel" />
     </div>
   )
-}
-
-function topBreakdownEntry(data: Record<string, number>) {
-  return Object.entries(data).sort((a, b) => b[1] - a[1])[0] ?? null
-}
-
-function displayProblemTitle(title: string) {
-  return title.replace(/\bissue\b/gi, 'problem')
-}
-
-function displayAction(action: string) {
-  return action.replace(/\bissues\b/gi, 'problems').replace(/\bissue\b/gi, 'problem')
-}
-
-function formatNeedLevel(value: number, timeStatus?: string) {
-  if (timeStatus === 'BREACHED') return 'High'
-  if (timeStatus === 'AT_RISK' && value < 40) return 'Medium'
-  if (value >= 70) return 'High'
-  if (value >= 40) return 'Medium'
-  return 'Low'
-}
-
-function sortProblemsForStaff(a: IssueSummary, b: IssueSummary) {
-  const statusWeight = (issue: IssueSummary) => (issue.status === 'RESOLVED' ? 1 : 0)
-  const timeWeight = (issue: IssueSummary) => {
-    if (issue.intelligence.sla_status === 'BREACHED') return 0
-    if (issue.intelligence.sla_status === 'AT_RISK') return 1
-    if (issue.intelligence.sla_status === 'ON_TRACK') return 2
-    return 3
-  }
-  const byStatus = statusWeight(a) - statusWeight(b)
-  if (byStatus !== 0) return byStatus
-  const byTime = timeWeight(a) - timeWeight(b)
-  if (byTime !== 0) return byTime
-  const byNeed = b.priority_score - a.priority_score
-  if (byNeed !== 0) return byNeed
-  return new Date(b.last_complaint_at ?? b.created_at).getTime() - new Date(a.last_complaint_at ?? a.created_at).getTime()
-}
-
-function formatStatusTab(status: IssueStatus | 'ALL') {
-  const labels: Record<IssueStatus | 'ALL', string> = {
-    ALL: 'All',
-    OPEN: 'New',
-    IN_PROGRESS: 'Being fixed',
-    REOPENED: 'Needs review',
-    RESOLVED: 'Resolved',
-  }
-  return labels[status]
-}
-
-function formatTimeStatus(status: string) {
-  const labels: Record<string, string> = {
-    ON_TRACK: 'On time',
-    AT_RISK: 'Due soon',
-    BREACHED: 'Late',
-    RESOLVED: 'Done',
-  }
-  return labels[status] ?? status.replace('_', ' ')
 }
